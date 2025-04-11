@@ -44,13 +44,22 @@ app.json_encoder = DecimalEncoder
 def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
-        dsn = os.environ.get('DATABASE_URL')
-        if dsn is None:
-            raise ValueError("DATABASE_URL not set")
+        # Get connection values
+        dbname = os.environ.get('PGDATABASE', 'postgres')
+        user = os.environ.get('PGUSER', 'postgres')
+        password = os.environ.get('PGPASSWORD', '')
+        host = os.environ.get('PGHOST', 'localhost')
+        port = os.environ.get('PGPORT', '5432')
 
-        conn = psycopg2.connect(dsn, sslmode='require')
+        # Build connection string
+        conn_string = f"dbname={dbname} user={user} password={password} 
+host={host} port={port} sslmode=require"
+
+        # Connect
+        conn = psycopg2.connect(conn_string)
         conn.autocommit = True
         return conn
+
     except Exception as e:
         logger.error(f"❌ Database connection error: {str(e)}")
         return None
