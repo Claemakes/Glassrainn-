@@ -1088,9 +1088,6 @@ def get_product(product_id):
         if conn:
             conn.close()
 
-# Add retailer checkout endpoint
-add_retailer_checkout_endpoint(app)
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 3000))
     debug = os.environ.get('FLASK_ENV') == 'development'
