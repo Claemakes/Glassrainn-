@@ -44,11 +44,15 @@ app.json_encoder = DecimalEncoder
 def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
-        conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
+        dsn = os.environ.get('DATABASE_URL')
+        if dsn is None:
+            raise ValueError("DATABASE_URL not set")
+
+        conn = psycopg2.connect(dsn, sslmode='require')
         conn.autocommit = True
         return conn
     except Exception as e:
-        logger.error(f"Database connection error: {str(e)}")
+        logger.error(f"❌ Database connection error: {str(e)}")
         return None
 
 def add_headers(response):
