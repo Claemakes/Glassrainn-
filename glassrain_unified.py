@@ -37,6 +37,11 @@ class DecimalEncoder(json.JSONEncoder):
 
 app.json_encoder = DecimalEncoder
 
+app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 
+'glassrain-dev-secret-key')
+app.json_encoder = DecimalEncoder
+
 def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
@@ -318,12 +323,6 @@ entertainment'
         logger.error(f"❌ Database setup error: {str(e)}")
         return False
 
-# Initialize Flask app
-app = Flask(__name__)
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 
-'glassrain-dev-secret-key')
-app.json_encoder = DecimalEncoder
- 
 # Initialize database
 setup_database()
 
