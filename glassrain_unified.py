@@ -40,13 +40,14 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY',
 'glassrain-dev-secret-key')
 app.json_encoder = DecimalEncoder
 
-def get_db_connection():
+    conn = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    return conndef get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
         # Get connection values directly
         dbname = "postgres"
         user = "postgres"
-        password = "Mmgoblue24,,,,"
+        password="Michiganfootball24Cclae",
         host = "db.qqkmcqgwkiuyqymvdigh.supabase.co"
         port = "5432"
 
