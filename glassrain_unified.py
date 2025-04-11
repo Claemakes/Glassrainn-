@@ -35,8 +35,6 @@ class DecimalEncoder(json.JSONEncoder):
             return float(o)
         return super(DecimalEncoder, self).default(o)
 
-app.json_encoder = DecimalEncoder
-
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 
 'glassrain-dev-secret-key')
