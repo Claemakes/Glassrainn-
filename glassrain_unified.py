@@ -28,13 +28,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize Flask app
-app = Flask(__name__)
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'glassrain-dev-secret-key')
-
-# Initialize database
-setup_database()
-
 # JSON encoder for Decimal
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
@@ -324,6 +317,15 @@ entertainment'
     except Exception as e:
         logger.error(f"❌ Database setup error: {str(e)}")
         return False
+
+# Initialize Flask app
+app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 
+'glassrain-dev-secret-key')
+app.json_encoder = DecimalEncoder
+ 
+# Initialize database
+setup_database()
 
 def add_headers(response):
     """Add headers to allow iframe embedding and CORS"""
