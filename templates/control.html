@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Home Intelligence Control</title>
+    
+    <style>
+        /* GlassRain Color Scheme */
+        :root {
+            --glassrain-gold: #C29E49;
+            --midnight-black: #1A1A1A;
+            --rain-slate: #2E2E2E;
+            --cloud-white: #F8F8F8;
+            --mist-gray: #E5E5E5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--midnight-black);
+            color: white;
+            overflow-x: hidden;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 64px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-tab {
+            padding: 8px 2px;
+            color: white;
+            text-decoration: none;
+            position: relative;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tab.active {
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--glassrain-gold);
+        }
+
+        /* Control Panel Layout */
+        .control-container {
+            padding-top: 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+        
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 0 16px;
+        }
+        
+        .control-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--cloud-white);
+        }
+        
+        .control-property {
+            font-size: 20px;
+            color: var(--glassrain-gold);
+        }
+        
+        /* Property Data Categories */
+        .data-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            padding: 0 16px;
+        }
+        
+        .data-category {
+            background-color: var(--rain-slate);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .category-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--cloud-white);
+        }
+        
+        .category-action {
+            color: var(--glassrain-gold);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .data-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-label {
+            font-size: 14px;
+            color: var(--mist-gray);
+        }
+        
+        .item-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--cloud-white);
+        }
+        
+        /* Add New Category Section */
+        .add-category-section {
+            margin-top: 40px;
+            padding: 0 16px;
+        }
+        
+        .add-form {
+            background-color: var(--rain-slate);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--cloud-white);
+            margin-bottom: 16px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            flex: 1;
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--mist-gray);
+        }
+        
+        .required {
+            color: #ff4d4d;
+            margin-left: 4px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--cloud-white);
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .form-control.is-invalid {
+            border-color: #ff4d4d;
+            box-shadow: 0 0 0 1px rgba(255, 77, 77, 0.2);
+        }
+        
+        .error-message {
+            color: #ff4d4d;
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .error-message.visible {
+            display: block;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--glassrain-gold);
+        }
+        
+        .submit-btn {
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 16px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #d4b05d;
+        }
+        
+        /* Email Quote Template Preview */
+        .quote-preview {
+            margin-top: 40px;
+            padding: 0 16px;
+        }
+        
+        .preview-container {
+            background-color: var(--rain-slate);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .preview-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--cloud-white);
+        }
+        
+        .preview-action {
+            color: var(--glassrain-gold);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .email-preview {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--mist-gray);
+        }
+        
+        .email-highlight {
+            color: var(--glassrain-gold);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">GlassRain</div>
+        <div class="nav-tabs">
+            <a href="/dashboard" class="nav-tab">Home</a>
+            <a href="/elevate" class="nav-tab">Elevate</a>
+            <a href="/services" class="nav-tab">Services</a>
+            <a href="/diy" class="nav-tab">DIY</a>
+            <a href="/control" class="nav-tab active">Control</a>
+            <a href="/settings" class="nav-tab">Settings</a>
+        </div>
+    </header>
+
+    <div class="control-container">
+        <div class="control-header">
+            <h1 class="control-title">Home Control Panel</h1>
+            <p class="control-property">{{ property.address_line if property.address_line else "123 Main Street, Anytown, USA" }}</p>
+        </div>
+        
+        <div class="data-categories">
+            <!-- Property Basics -->
+            <div class="data-category">
+                <div class="category-header">
+                    <h2 class="category-title">Property Basics</h2>
+                    <span class="category-action">Edit</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Year Built</span>
+                    <span class="item-value">{{ property.year_built }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Square Footage</span>
+                    <span class="item-value">{{ property.square_feet }} sqft</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Bedrooms</span>
+                    <span class="item-value">{{ property.bedrooms }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Bathrooms</span>
+                    <span class="item-value">{{ property.bathrooms }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Lot Size</span>
+                    <span class="item-value">{{ property.lot_size if property.lot_size else "0.25 acres" }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Property Type</span>
+                    <span class="item-value">{{ property.property_type if property.property_type else "Single Family" }}</span>
+                </div>
+            </div>
+            
+            <!-- Recent Updates -->
+            <div class="data-category">
+                <div class="category-header">
+                    <h2 class="category-title">Recent Updates</h2>
+                    <span class="category-action">Add</span>
+                </div>
+                {% if property.recent_updates %}
+                    {% for update in property.recent_updates %}
+                    <div class="data-item">
+                        <span class="item-label">{{ update.date }}</span>
+                        <span class="item-value">{{ update.description }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="data-item">
+                        <span class="item-label">2024-01-15</span>
+                        <span class="item-value">Replaced HVAC system</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="item-label">2023-11-05</span>
+                        <span class="item-value">Kitchen remodel completed</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="item-label">2023-08-22</span>
+                        <span class="item-value">Repainted exterior</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Permits and Records -->
+            <div class="data-category">
+                <div class="category-header">
+                    <h2 class="category-title">Permits & Records</h2>
+                    <span class="category-action">Add</span>
+                </div>
+                {% if property.permits %}
+                    {% for permit in property.permits %}
+                    <div class="data-item">
+                        <span class="item-label">{{ permit.date }} | {{ permit.type }}</span>
+                        <span class="item-value">{{ permit.description }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="data-item">
+                        <span class="item-label">2023-10-12 | Building</span>
+                        <span class="item-value">Deck addition permit #BLD-23-8754</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="item-label">2023-09-03 | Electrical</span>
+                        <span class="item-value">Electrical upgrade #ELE-23-4523</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="item-label">2023-05-18 | Plumbing</span>
+                        <span class="item-value">Water heater replacement #PLB-23-2314</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Systems & Appliances -->
+            <div class="data-category">
+                <div class="category-header">
+                    <h2 class="category-title">Systems & Appliances</h2>
+                    <span class="category-action">Edit</span>
+                </div>
+                {% if property.systems %}
+                    {% for system in property.systems %}
+                    <div class="data-item">
+                        <span class="item-label">{{ system.name }}</span>
+                        <span class="item-value">{{ system.details }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="data-item">
+                        <span class="item-label">HVAC</span>
+                        <span class="item-value">Carrier, 3.5 ton, installed 2024</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="item-label">Water Heater</span>
+                        <span class="item-value">Rheem, 50 gal, installed 2023</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="item-label">Roof</span>
+                        <span class="item-value">Asphalt shingle, installed 2019</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="item-label">Refrigerator</span>
+                        <span class="item-value">Samsung, model RF28R7351SR, 2022</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Energy & Utilities -->
+            <div class="data-category">
+                <div class="category-header">
+                    <h2 class="category-title">Energy & Utilities</h2>
+                    <span class="category-action">Edit</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Energy Score</span>
+                    <span class="item-value" style="color: {{ property.energy_color }}; font-weight: bold;">{{ property.energy_score }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Solar Exposure Rating</span>
+                    <span class="item-value">{{ property.solar_exposure_rating if property.solar_exposure_rating else "Moderate" }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Climate Zone</span>
+                    <span class="item-value">{{ property.climate_zone if property.climate_zone else "Temperate" }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Weather Pattern</span>
+                    <span class="item-value">{{ property.weather_pattern if property.weather_pattern else "Seasonal variations" }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Heating Type</span>
+                    <span class="item-value">{{ property.heating_type if property.heating_type else "Forced air gas" }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Cooling Type</span>
+                    <span class="item-value">{{ property.cooling_type if property.cooling_type else "Central air" }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Avg. Electric Bill</span>
+                    <span class="item-value">{{ property.avg_electric_bill if property.avg_electric_bill else "$145/month" }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Avg. Gas Bill</span>
+                    <span class="item-value">{{ property.avg_gas_bill if property.avg_gas_bill else "$85/month" }}</span>
+                </div>
+                <div class="data-item">
+                    <span class="item-label">Window Coverage</span>
+                    <span class="item-value">{{ property.window_coverage if property.window_coverage else "12% of floor area" }}</span>
+                </div>
+            </div>
+            
+            <!-- Custom Fields (If any) -->
+            {% if property.custom_categories %}
+                {% for category in property.custom_categories %}
+                <div class="data-category">
+                    <div class="category-header">
+                        <h2 class="category-title">{{ category.name }}</h2>
+                        <span class="category-action">Edit</span>
+                    </div>
+                    {% for item in category.items %}
+                    <div class="data-item">
+                        <span class="item-label">{{ item.label }}</span>
+                        <span class="item-value">{{ item.value }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <!-- Add New Category Section -->
+        <div class="add-category-section">
+            <div class="add-form">
+                <h2 class="form-title">Add New Category or Information</h2>
+                <form id="add-category-form" novalidate>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Category Name<span class="required">*</span></label>
+                            <input type="text" class="form-control" id="category-name" placeholder="e.g., Home Security, Insurance, etc." required>
+                            <div class="error-message" id="category-name-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Item Label<span class="required">*</span></label>
+                            <input type="text" class="form-control" id="item-label" placeholder="e.g., Provider, Policy Number, etc." required>
+                            <div class="error-message" id="item-label-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Item Value<span class="required">*</span></label>
+                            <input type="text" class="form-control" id="item-value" placeholder="Enter the value..." required>
+                            <div class="error-message" id="item-value-error"></div>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">Add Information</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Email Quote Template Preview -->
+        <div class="quote-preview">
+            <div class="preview-container">
+                <div class="preview-header">
+                    <h2 class="preview-title">Contractor Quote Email Preview</h2>
+                    <span class="preview-action">Edit Template</span>
+                </div>
+                <div class="email-preview">
+                    <p>Subject: Service Request for <span class="email-highlight">{{ property.address_line if property.address_line else "123 Main Street, Anytown, USA" }}</span></p>
+                    <br>
+                    <p>Hello [Contractor Name],</p>
+                    <br>
+                    <p>A homeowner has requested a quote for <span class="email-highlight">[Service Type]</span> services through GlassRain.</p>
+                    <br>
+                    <p><strong>Property Details:</strong></p>
+                    <p>- Address: <span class="email-highlight">{{ property.address_line if property.address_line else "123 Main Street, Anytown, USA" }}</span></p>
+                    <p>- Year Built: <span class="email-highlight">{{ property.year_built }}</span></p>
+                    <p>- Square Footage: <span class="email-highlight">{{ property.square_feet }} sqft</span></p>
+                    <p>- Property Type: <span class="email-highlight">{{ property.property_type if property.property_type else "Single Family" }}</span></p>
+                    <br>
+                    <p><strong>Recent Updates:</strong></p>
+                    <p>- HVAC replaced in January 2024</p>
+                    <p>- Kitchen remodel completed in November 2023</p>
+                    <br>
+                    <p><strong>Service Request Details:</strong></p>
+                    <p>[Service description and specific requirements will be included here]</p>
+                    <br>
+                    <p>Please review the details and respond with a quote within 48 hours.</p>
+                    <br>
+                    <p>Thank you,</p>
+                    <p>The GlassRain Team</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form elements
+        const categoryForm = document.getElementById('add-category-form');
+        const categoryNameInput = document.getElementById('category-name');
+        const itemLabelInput = document.getElementById('item-label');
+        const itemValueInput = document.getElementById('item-value');
+        
+        // Error elements
+        const categoryNameError = document.getElementById('category-name-error');
+        const itemLabelError = document.getElementById('item-label-error');
+        const itemValueError = document.getElementById('item-value-error');
+        
+        // Validation patterns
+        const patterns = {
+            categoryName: /^[a-zA-Z0-9\s&-]{3,30}$/,
+            itemLabel: /^[a-zA-Z0-9\s_-]{2,30}$/
+        };
+        
+        // Input validators
+        function validateCategoryName() {
+            const value = categoryNameInput.value.trim();
+            
+            // Reset validation state
+            categoryNameInput.classList.remove('is-invalid');
+            categoryNameError.classList.remove('visible');
+            categoryNameError.textContent = '';
+            
+            // Check if empty
+            if (!value) {
+                categoryNameInput.classList.add('is-invalid');
+                categoryNameError.classList.add('visible');
+                categoryNameError.textContent = 'Category name is required';
+                return false;
+            }
+            
+            // Check pattern
+            if (!patterns.categoryName.test(value)) {
+                categoryNameInput.classList.add('is-invalid');
+                categoryNameError.classList.add('visible');
+                categoryNameError.textContent = 'Category name must be 3-30 characters (letters, numbers, spaces, &, -)';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function validateItemLabel() {
+            const value = itemLabelInput.value.trim();
+            
+            // Reset validation state
+            itemLabelInput.classList.remove('is-invalid');
+            itemLabelError.classList.remove('visible');
+            itemLabelError.textContent = '';
+            
+            // Check if empty
+            if (!value) {
+                itemLabelInput.classList.add('is-invalid');
+                itemLabelError.classList.add('visible');
+                itemLabelError.textContent = 'Item label is required';
+                return false;
+            }
+            
+            // Check pattern
+            if (!patterns.itemLabel.test(value)) {
+                itemLabelInput.classList.add('is-invalid');
+                itemLabelError.classList.add('visible');
+                itemLabelError.textContent = 'Item label must be 2-30 characters (letters, numbers, spaces, _, -)';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function validateItemValue() {
+            const value = itemValueInput.value.trim();
+            
+            // Reset validation state
+            itemValueInput.classList.remove('is-invalid');
+            itemValueError.classList.remove('visible');
+            itemValueError.textContent = '';
+            
+            // Check if empty
+            if (!value) {
+                itemValueInput.classList.add('is-invalid');
+                itemValueError.classList.add('visible');
+                itemValueError.textContent = 'Item value is required';
+                return false;
+            }
+            
+            // Check length (simple validation)
+            if (value.length > 100) {
+                itemValueInput.classList.add('is-invalid');
+                itemValueError.classList.add('visible');
+                itemValueError.textContent = 'Item value must be less than 100 characters';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Add event listeners for real-time validation
+        categoryNameInput.addEventListener('blur', validateCategoryName);
+        itemLabelInput.addEventListener('blur', validateItemLabel);
+        itemValueInput.addEventListener('blur', validateItemValue);
+        
+        // Add keyboard event listeners for real-time feedback
+        categoryNameInput.addEventListener('input', function() {
+            if (categoryNameInput.classList.contains('is-invalid')) {
+                validateCategoryName();
+            }
+        });
+        
+        itemLabelInput.addEventListener('input', function() {
+            if (itemLabelInput.classList.contains('is-invalid')) {
+                validateItemLabel();
+            }
+        });
+        
+        itemValueInput.addEventListener('input', function() {
+            if (itemValueInput.classList.contains('is-invalid')) {
+                validateItemValue();
+            }
+        });
+        
+        // Form submission handler
+        categoryForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate all fields
+            const isCategoryNameValid = validateCategoryName();
+            const isItemLabelValid = validateItemLabel();
+            const isItemValueValid = validateItemValue();
+            
+            // Submit if all fields are valid
+            if (isCategoryNameValid && isItemLabelValid && isItemValueValid) {
+                const categoryName = categoryNameInput.value.trim();
+                const itemLabel = itemLabelInput.value.trim();
+                const itemValue = itemValueInput.value.trim();
+                
+                // In a real implementation, this would send data to the server
+                // For demonstration purposes, add it to the UI directly
+                
+                // Check if category already exists
+                let categoryExists = false;
+                let categoryElement;
+                
+                document.querySelectorAll('.category-title').forEach(title => {
+                    if (title.textContent === categoryName) {
+                        categoryExists = true;
+                        categoryElement = title.closest('.data-category');
+                    }
+                });
+                
+                if (categoryExists) {
+                    // Add new item to existing category
+                    const newItem = document.createElement('div');
+                    newItem.className = 'data-item';
+                    newItem.innerHTML = `
+                        <span class="item-label">${itemLabel}</span>
+                        <span class="item-value">${itemValue}</span>
+                    `;
+                    categoryElement.appendChild(newItem);
+                } else {
+                    // Create new category with item
+                    const newCategory = document.createElement('div');
+                    newCategory.className = 'data-category';
+                    newCategory.innerHTML = `
+                        <div class="category-header">
+                            <h2 class="category-title">${categoryName}</h2>
+                            <span class="category-action">Edit</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="item-label">${itemLabel}</span>
+                            <span class="item-value">${itemValue}</span>
+                        </div>
+                    `;
+                    document.querySelector('.data-categories').appendChild(newCategory);
+                    
+                    // Add event listener to new action button
+                    newCategory.querySelector('.category-action').addEventListener('click', function() {
+                        const action = this.textContent;
+                        const category = this.closest('.category-header').querySelector('.category-title').textContent;
+                        alert(`${action} clicked for category: ${category}`);
+                    });
+                }
+                
+                // Clear the form
+                categoryForm.reset();
+                
+                // Show success message
+                const successMessage = document.createElement('div');
+                successMessage.className = 'success-message';
+                successMessage.textContent = 'Information added successfully!';
+                successMessage.style.color = '#4CAF50';
+                successMessage.style.marginTop = '10px';
+                successMessage.style.fontWeight = 'bold';
+                
+                categoryForm.appendChild(successMessage);
+                
+                // Remove success message after 3 seconds
+                setTimeout(() => {
+                    categoryForm.removeChild(successMessage);
+                }, 3000);
+            }
+        });
+        
+        // Make the category action buttons interactive
+        document.querySelectorAll('.category-action').forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.textContent;
+                const category = this.closest('.category-header').querySelector('.category-title').textContent;
+                alert(`${action} clicked for category: ${category}`);
+            });
+        });
+    </script>
+</body>
+</html>

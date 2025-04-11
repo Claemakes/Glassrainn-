@@ -1,0 +1,2 @@
+[commands]
+start = ["python", "run.py"]

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Address Entry</title>
+    
+    <!-- Mapbox GL CSS and JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css" rel="stylesheet" />
+    
+    <!-- Mapbox Geocoder Plugin -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+    
+    <style>
+        /* GlassRain color variables */
+        :root {
+            --primary-gold: #C29E49;
+            --midnight-black: #1A1A1A;
+            --rain-slate: #2E2E2E;
+            --cloud-white: #F8F8F8;
+            --mist-gray: #E5E5E5;
+            --success-green: #4CAF50;
+            --warning-amber: #FFC107;
+            --error-red: #F44336;
+        }
+        
+        /* Tailwind-inspired utilities */
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .font-bold { font-weight: 700; }
+        .text-center { text-align: center; }
+        .text-gray-600 { color: #4B5563; }
+        .text-green-600 { color: #059669; }
+        .text-red-600 { color: #DC2626; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-12 { margin-bottom: 3rem; }
+        .my-12 { margin-top: 3rem; margin-bottom: 3rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .grid { display: grid; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .gap-8 { gap: 2rem; }
+        .rounded { border-radius: 0.25rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .hidden { display: none; }
+        
+        /* Custom styles */
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: var(--cloud-white);
+            color: var(--midnight-black);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        
+        header {
+            background-color: var(--midnight-black);
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-gold);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .address-card {
+            height: 100%;
+        }
+        
+        .map-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #map {
+            flex-grow: 1;
+            min-height: 400px;
+            width: 100%;
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+        
+        .map-overlay {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin: 1rem;
+            max-width: 300px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .required {
+            background-color: var(--primary-gold);
+            color: white;
+        }
+        
+        .input-label {
+            font-weight: 600;
+            color: var(--midnight-black);
+        }
+        
+        .geocoder {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-gold);
+            color: white;
+            border: none;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            background-color: #b18a3a;
+        }
+        
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .floating-helper {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            background-color: var(--primary-gold);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+        
+        .floating-helper:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Saved addresses section */
+        .saved-addresses {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .saved-addresses h3 {
+            margin-top: 0;
+            color: var(--midnight-black);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .address-item {
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--mist-gray);
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .address-item:hover {
+            background-color: var(--cloud-white);
+        }
+        
+        @media (min-width: 1024px) {
+            .grid-cols-1 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container flex justify-between items-center">
+            <div class="logo">GlassRain</div>
+        </div>
+    </header>
+    
+    <main class="container my-12">
+        <h1 class="text-3xl font-bold mb-8 text-center">Let's Find Your Home</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="card address-card p-8">
+                <h2 class="text-2xl font-bold mb-6" style="color: var(--primary-gold);">Welcome to Your Home Hub</h2>
+                <p class="text-gray-600 mb-6">Let's start by locating your home. This helps us create a personalized experience tailored to your property.</p>
+                
+                <form id="address-form" onsubmit="return false;">
+                    <div class="mb-6">
+                        <div class="flex items-center mb-2">
+                            <span class="status-indicator required">!</span>
+                            <label for="address" class="input-label">Your Home Address</label>
+                        </div>
+                        <div id="geocoder" class="geocoder"></div>
+                        <div id="address-status" class="text-sm mt-2 hidden">
+                            <div id="address-valid" class="text-green-600 hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                Address verified successfully!
+                            </div>
+                            <div id="address-invalid" class="text-red-600 hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                Please select a valid address from the suggestions.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" id="address-json" name="address-json" />
+                    
+                    <button type="submit" id="submit-button" class="submit-btn" disabled>
+                        Build
+                    </button>
+                </form>
+                
+                <div id="previous-addresses"></div>
+            </div>
+            
+            <div class="card map-card p-4">
+                <div id="map"></div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="floating-helper" title="Need help?">?</div>
+
+    <script>
+        // Get elements
+        const addressStatus = document.getElementById('address-status');
+        const addressValid = document.getElementById('address-valid');
+        const addressInvalid = document.getElementById('address-invalid');
+        const submitButton = document.getElementById('submit-button');
+        
+        // Set up the map once we get the Mapbox token
+        // This also sets up a geocoder for address entry
+        let map, geocoder;
+        
+        // Load previous addresses if any
+        function loadPreviousAddresses() {
+            fetch('/api/addresses')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.addresses && data.addresses.length > 0) {
+                        const addressesSection = document.createElement('div');
+                        addressesSection.className = 'saved-addresses';
+                        addressesSection.innerHTML = '<h3>Recent Addresses</h3>';
+                        
+                        data.addresses.forEach(address => {
+                            const addressItem = document.createElement('div');
+                            addressItem.className = 'address-item';
+                            addressItem.textContent = address.full_address || 
+                                `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
+                            
+                            addressItem.addEventListener('click', function() {
+                                // Use this address
+                                localStorage.setItem('currentAddressId', address.id);
+                                window.location.href = '/dashboard';
+                            });
+                            
+                            addressesSection.appendChild(addressItem);
+                        });
+                        
+                        const form = document.getElementById('address-form');
+                        form.parentNode.insertBefore(addressesSection, form.nextSibling);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading previous addresses:', error);
+                });
+        }
+
+        fetch('/api/mapbox-token')
+            .then(response => response.json())
+            .then(data => {
+                mapboxgl.accessToken = data.token;
+                
+                // Initialize map
+                map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/satellite-streets-v12',
+                    center: [-98.5795, 39.8283], // Center of the USA
+                    zoom: 3
+                });
+                
+                map.addControl(new mapboxgl.NavigationControl());
+                
+                // Initialize geocoder for address search
+                geocoder = new MapboxGeocoder({
+                    accessToken: mapboxgl.accessToken,
+                    mapboxgl: mapboxgl,
+                    marker: false,
+                    placeholder: 'Enter your address',
+                    countries: 'us',
+                    types: 'address',
+                    minLength: 2, // Start showing suggestions after just 2 characters
+                    limit: 5,     // Show 5 most relevant results
+                    flyTo: false  // Don't automatically fly to locations as we enter text
+                });
+                
+                document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+                
+                // Load previous addresses
+                loadPreviousAddresses();
+                
+                const submitButton = document.getElementById('submit-button');
+                
+                // Store the geocoded address in a hidden field when selected
+                geocoder.on('result', function(e) {
+                    document.getElementById('address-json').value = JSON.stringify(e.result);
+                    
+                    // Show success message
+                    addressStatus.classList.remove('hidden');
+                    addressValid.classList.remove('hidden');
+                    addressInvalid.classList.add('hidden');
+                    
+                    submitButton.disabled = false;
+                    
+                    // Update map with 3D buildings
+                    if (!map.getLayer('3d-buildings')) {
+                        map.addLayer({
+                            'id': '3d-buildings',
+                            'source': 'composite',
+                            'source-layer': 'building',
+                            'filter': ['==', 'extrude', 'true'],
+                            'type': 'fill-extrusion',
+                            'minzoom': 15,
+                            'paint': {
+                                'fill-extrusion-color': '#aaa',
+                                'fill-extrusion-height': [
+                                    'interpolate', ['linear'], ['zoom'],
+                                    15, 0,
+                                    15.05, ['get', 'height']
+                                ],
+                                'fill-extrusion-base': [
+                                    'interpolate', ['linear'], ['zoom'],
+                                    15, 0,
+                                    15.05, ['get', 'min_height']
+                                ],
+                                'fill-extrusion-opacity': 0.6
+                            }
+                        });
+                    }
+                    
+                    // Add a marker at the selected location
+                    new mapboxgl.Marker({
+                        color: "#C29E49"
+                    })
+                    .setLngLat(e.result.center)
+                    .addTo(map);
+                    
+                    // Fly to the selected location
+                    map.flyTo({
+                        center: e.result.center,
+                        zoom: 17,
+                        pitch: 60,
+                        bearing: 0
+                    });
+                });
+                
+                // When geocoder is cleared, disable the submit button
+                geocoder.on('clear', function() {
+                    document.getElementById('address-json').value = '';
+                    submitButton.disabled = true;
+                    
+                    // Hide status messages
+                    addressStatus.classList.add('hidden');
+                    
+                    // Reset the map view
+                    map.flyTo({
+                        center: [-98.5795, 39.8283],
+                        zoom: 3,
+                        pitch: 0,
+                        bearing: 0
+                    });
+                    
+                    // Remove any markers
+                    const markers = document.getElementsByClassName('mapboxgl-marker');
+                    while(markers[0]) {
+                        markers[0].parentNode.removeChild(markers[0]);
+                    }
+                });
+                
+                // Form submission
+                document.getElementById('address-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Make sure an address was selected
+                    if (!document.getElementById('address-json').value) {
+                        // Show error message
+                        addressStatus.classList.remove('hidden');
+                        addressValid.classList.add('hidden');
+                        addressInvalid.classList.remove('hidden');
+                        
+                        // Scroll to geocoder
+                        document.getElementById('geocoder').scrollIntoView({ behavior: 'smooth' });
+                        return;
+                    }
+                    
+                    // Get the address data
+                    const addressJson = JSON.parse(document.getElementById('address-json').value);
+                    
+                    // Disable button and show loading state
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = 'Processing...';
+                    
+                    // Extract needed data from the Mapbox geocoder result
+                    const address = {
+                        street: addressJson.address ? addressJson.address + ' ' + addressJson.text : addressJson.text,
+                        city: '',
+                        state: '',
+                        zip: '',
+                        country: 'USA',
+                        lat: addressJson.center[1],
+                        lng: addressJson.center[0],
+                        full_address: addressJson.place_name
+                    };
+                    
+                    // Extract city, state, zip from context
+                    if (addressJson.context) {
+                        addressJson.context.forEach(item => {
+                            const id = item.id.split('.')[0];
+                            if (id === 'place') {
+                                address.city = item.text;
+                            } else if (id === 'region') {
+                                address.state = item.text;
+                            } else if (id === 'postcode') {
+                                address.zip = item.text;
+                            } else if (id === 'country') {
+                                address.country = item.text;
+                            }
+                        });
+                    }
+                    
+                    // Send the data to the server
+                    fetch('/api/process-address', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(address)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Save address ID to localStorage
+                            if (data.address_id) {
+                                localStorage.setItem('currentAddressId', data.address_id);
+                            }
+                            // Redirect to dashboard
+                            window.location.href = '/dashboard';
+                        } else {
+                            // Show error
+                            alert(data.error || 'Error processing address. Please try again.');
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = 'Build';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error processing address:', error);
+                        alert('Error processing address. Please try again.');
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = 'Build';
+                    });
+                });
+                
+                // Floating helper functionality
+                document.querySelector('.floating-helper').addEventListener('click', function() {
+                    alert('Need help finding your address? Type your street address in the search box and select it from the dropdown suggestions. If you need further assistance, please contact support@glassrain.com.');
+                });
+            })
+            .catch(error => {
+                console.error('Error loading Mapbox token:', error);
+                document.getElementById('map').innerHTML = 
+                    '<div class="flex items-center justify-center h-full bg-gray-100">' + 
+                    '<p class="text-gray-500">Map could not be loaded. Please refresh the page or try again later.</p>' +
+                    '</div>';
+                
+                // Disable submit button
+                document.getElementById('submit-button').disabled = true;
+            });
+    </script>
+</body>
+</html>

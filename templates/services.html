@@ -1,0 +1,2387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Services</title>
+    <style>
+        /* GlassRain Color Scheme */
+        :root {
+            --glassrain-gold: #C29E49;
+            --midnight-black: #1A1A1A;
+            --rain-slate: #2E2E2E;
+            --cloud-white: #F8F8F8;
+            --mist-gray: #E5E5E5;
+            --success-green: #4CAF50;
+            --warning-orange: #FF9800;
+            --danger-red: #F44336;
+            --info-blue: #2196F3;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cloud-white);
+            color: var(--midnight-black);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--midnight-black);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-tab {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 0;
+            position: relative;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--glassrain-gold);
+            border-radius: 3px;
+        }
+
+        .nav-tab:hover {
+            color: var(--glassrain-gold);
+        }
+
+        /* Main Container */
+        .container {
+            padding: 40px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Page Title */
+        .page-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--midnight-black);
+        }
+
+        .page-description {
+            font-size: 18px;
+            color: #555;
+            max-width: 800px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* Main Categories */
+        .main-categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .category-card {
+            width: 120px;
+            height: 120px;
+            background-color: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: var(--rain-slate);
+            opacity: 0.8;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .category-card:hover::before {
+            background-color: var(--glassrain-gold);
+        }
+
+        .category-card.active {
+            border: 2px solid var(--glassrain-gold);
+        }
+
+        .category-card.active::before {
+            background-color: var(--glassrain-gold);
+        }
+
+        .category-icon {
+            width: 42px;
+            height: 42px;
+            margin-bottom: 12px;
+            color: var(--rain-slate);
+            transition: color 0.2s;
+        }
+
+        .category-card:hover .category-icon {
+            color: var(--glassrain-gold);
+        }
+
+        .category-card.active .category-icon {
+            color: var(--glassrain-gold);
+        }
+
+        .category-name {
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--midnight-black);
+        }
+
+        /* Service Flow */
+        .service-flow {
+            margin-bottom: 40px;
+        }
+
+        .flow-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--midnight-black);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .flow-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .breadcrumb-separator {
+            color: #ccc;
+        }
+
+        .breadcrumb-active {
+            color: var(--glassrain-gold);
+            font-weight: 600;
+        }
+
+        /* Sub Categories */
+        .subcategories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .subcategory-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .subcategory-btn:hover {
+            background-color: var(--mist-gray);
+        }
+
+        .subcategory-btn.active {
+            background-color: var(--glassrain-gold);
+            color: white;
+            border-color: var(--glassrain-gold);
+        }
+
+        /* Service Tiers */
+        .service-tiers {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .tier-card {
+            flex: 1;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .tier-card.selected {
+            border-color: var(--glassrain-gold);
+        }
+
+        .tier-header {
+            background-color: var(--rain-slate);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .tier-card.selected .tier-header {
+            background-color: var(--glassrain-gold);
+        }
+
+        .tier-body {
+            padding: 20px;
+        }
+
+        .tier-price {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .tier-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tier-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .tier-feature-icon {
+            color: var(--success-green);
+        }
+
+        .tier-select {
+            background-color: var(--glassrain-gold);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .tier-select:hover {
+            background-color: var(--midnight-black);
+        }
+
+        /* Contractors */
+        .contractors {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .contractor-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .contractor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .contractor-banner {
+            height: 100px;
+            background-color: var(--rain-slate);
+            position: relative;
+        }
+
+        .contractor-logo {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -30px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .contractor-logo img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
+
+        .contractor-body {
+            padding: 20px;
+            padding-top: 40px;
+        }
+
+        .contractor-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .contractor-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .rating-stars {
+            color: var(--glassrain-gold);
+        }
+
+        .rating-count {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .contractor-details {
+            margin-bottom: 15px;
+        }
+
+        .contractor-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .contractor-detail-icon {
+            color: var(--rain-slate);
+        }
+
+        .contractor-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .contractor-tag {
+            background-color: rgba(194, 158, 73, 0.1);
+            color: var(--glassrain-gold);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .contractor-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--glassrain-gold);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--midnight-black);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--midnight-black);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px 15px;
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--mist-gray);
+        }
+
+        /* User Activity */
+        .user-activity {
+            margin-top: 60px;
+        }
+
+        .activity-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 30px;
+        }
+
+        .activity-tab {
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .activity-tab.active {
+            color: var(--glassrain-gold);
+        }
+
+        .activity-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--glassrain-gold);
+        }
+
+        /* Saved Quotes */
+        .saved-quotes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .quote-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .quote-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quote-service {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .quote-date {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .quote-body {
+            padding: 20px;
+        }
+
+        .quote-contractor {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .quote-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #f5f5f5;
+        }
+
+        .quote-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .quote-contractor-name {
+            font-weight: 600;
+        }
+
+        .quote-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--glassrain-gold);
+            margin-bottom: 15px;
+        }
+
+        .quote-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .status-pending {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .status-accepted {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success-green);
+        }
+
+        .status-scheduled {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--info-blue);
+        }
+
+        .quote-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Service Calendar */
+        .service-calendar {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav-btn {
+            background-color: var(--mist-gray);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-nav-btn:hover {
+            background-color: var(--glassrain-gold);
+            color: white;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-weekday {
+            font-size: 14px;
+            font-weight: 600;
+            color: #777;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .calendar-day {
+            height: 70px;
+            border-radius: 8px;
+            padding: 5px;
+            border: 1px solid #eee;
+            text-align: center;
+            position: relative;
+        }
+
+        .calendar-date {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .calendar-event {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--glassrain-gold);
+            margin: 0 auto;
+            border: 1px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .calendar-event.confirmed {
+            background-color: var(--glassrain-gold);
+        }
+
+        .calendar-event.pending {
+            background-color: white;
+            border: 2px solid var(--glassrain-gold);
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.25s, opacity 0.25s;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 12px;
+            overflow: hidden;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.25s;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            z-index: 10;
+        }
+
+        .modal-header {
+            padding: 0;
+            position: relative;
+        }
+
+        .modal-banner {
+            height: 150px;
+            background-color: var(--rain-slate);
+            position: relative;
+        }
+
+        .modal-logo {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -50px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .modal-logo img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        .modal-body {
+            padding: 30px;
+            padding-top: 60px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--midnight-black);
+        }
+
+        .modal-subtitle {
+            font-size: 16px;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .modal-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 25px;
+        }
+
+        .modal-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--midnight-black);
+        }
+
+        .service-options {
+            margin-bottom: 30px;
+        }
+
+        .service-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .service-option:hover {
+            border-color: var(--glassrain-gold);
+            background-color: rgba(194, 158, 73, 0.05);
+        }
+
+        .service-option.selected {
+            border-color: var(--glassrain-gold);
+            background-color: rgba(194, 158, 73, 0.05);
+        }
+
+        .service-option-name {
+            font-weight: 600;
+        }
+
+        .service-option-price {
+            font-weight: 700;
+            color: var(--glassrain-gold);
+        }
+
+        /* Form */
+        .form-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--midnight-black);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--glassrain-gold);
+            outline: none;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-note {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            font-size: 72px;
+            color: var(--success-green);
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--midnight-black);
+        }
+
+        .success-text {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--midnight-black);
+            color: white;
+            padding: 40px 5%;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .footer-logo {
+            color: var(--glassrain-gold);
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            color: var(--glassrain-gold);
+        }
+
+        .copyright {
+            color: #888;
+            font-size: 14px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 991px) {
+            .service-tiers {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                gap: 15px;
+            }
+            
+            .container {
+                padding: 30px 3%;
+            }
+            
+            .contractors {
+                grid-template-columns: 1fr;
+            }
+            
+            .saved-quotes {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .category-card {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .calendar-grid {
+                gap: 4px;
+            }
+            
+            .calendar-day {
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">GlassRain</div>
+        <nav class="nav-tabs">
+            <a href="/" class="nav-tab">Home</a>
+            <a href="/elevate" class="nav-tab">Elevate</a>
+            <a href="/services" class="nav-tab active">Services</a>
+            <a href="/diy" class="nav-tab">DIY</a>
+            <a href="/control" class="nav-tab">Control</a>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1 class="page-title">Home Services</h1>
+        <p class="page-description">
+            Discover trusted local professionals for all your home service needs. From lawn care to home renovations, find qualified experts who deliver quality work at fair prices.
+        </p>
+
+        <!-- Main Categories -->
+        <div class="main-categories" id="main-categories">
+            <!-- Categories will be loaded here -->
+            <div class="loading">Loading categories...</div>
+        </div>
+
+        <!-- Service Flow -->
+        <div class="service-flow" id="service-flow" style="display: none;">
+            <!-- Breadcrumb -->
+            <div class="flow-breadcrumb" id="flow-breadcrumb">
+                <span class="breadcrumb-item breadcrumb-active">Categories</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Subcategories</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Tiers</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Contractors</span>
+            </div>
+
+            <!-- Step 1: Subcategories -->
+            <div id="subcategories-step" style="display: none;">
+                <div class="flow-header">
+                    <span id="selected-category-name">Category Name</span>
+                </div>
+                <div class="subcategories" id="subcategories-container">
+                    <!-- Subcategories will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Step 2: Service Tiers -->
+            <div id="tiers-step" style="display: none;">
+                <div class="flow-header">
+                    <span id="selected-subcategory-name">Subcategory Name</span>
+                </div>
+                <div class="service-tiers" id="service-tiers">
+                    <!-- Tiers will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Step 3: Contractors -->
+            <div id="contractors-step" style="display: none;">
+                <div class="flow-header">
+                    <span id="selected-tier-name">Service Tier</span>
+                </div>
+                <div class="contractors" id="contractors-container">
+                    <!-- Contractors will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- User Activity -->
+        <div class="user-activity">
+            <div class="activity-tabs">
+                <div class="activity-tab active" onclick="showActivityTab('saved-quotes-tab')">Saved Quotes</div>
+                <div class="activity-tab" onclick="showActivityTab('saved-contractors-tab')">Saved Contractors</div>
+                <div class="activity-tab" onclick="showActivityTab('calendar-tab')">Service Calendar</div>
+            </div>
+
+            <!-- Saved Quotes Tab -->
+            <div id="saved-quotes-tab" class="activity-tab-content">
+                <div class="saved-quotes" id="saved-quotes-container">
+                    <!-- If no saved quotes -->
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">No saved quotes yet</div>
+                        <div style="color: #777; margin-bottom: 20px;">Your requested quotes will appear here</div>
+                    </div>
+                    
+                    <!-- Sample quote (will be hidden and generated dynamically) -->
+                    <div class="quote-card" style="display: none;">
+                        <div class="quote-header">
+                            <div class="quote-service">Lawn Mowing</div>
+                            <div class="quote-date">Apr 8, 2025</div>
+                        </div>
+                        <div class="quote-body">
+                            <div class="quote-contractor">
+                                <div class="quote-logo">
+                                    <img src="/static/images/contractors/greencare.png" alt="GreenCare Lawn">
+                                </div>
+                                <div>
+                                    <div class="quote-contractor-name">GreenCare Lawn</div>
+                                    <div class="quote-rating">
+                                        <span class="rating-stars">★★★★★</span>
+                                        <span class="rating-count">(128)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quote-price">$75.00</div>
+                            <div class="quote-status status-pending">Quote Pending</div>
+                            <div class="quote-actions">
+                                <button class="btn-primary">View Details</button>
+                                <button class="btn-secondary">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Contractors Tab -->
+            <div id="saved-contractors-tab" class="activity-tab-content" style="display: none;">
+                <div class="contractors" id="saved-contractors-container">
+                    <!-- If no saved contractors -->
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">No saved contractors yet</div>
+                        <div style="color: #777; margin-bottom: 20px;">Save contractors to quickly request their services later</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Tab -->
+            <div id="calendar-tab" class="activity-tab-content" style="display: none;">
+                <div class="service-calendar">
+                    <div class="calendar-header">
+                        <div class="calendar-title">April 2025</div>
+                        <div class="calendar-nav">
+                            <button class="calendar-nav-btn">&#10094;</button>
+                            <button class="calendar-nav-btn">&#10095;</button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid">
+                        <!-- Weekdays -->
+                        <div class="calendar-weekday">Sun</div>
+                        <div class="calendar-weekday">Mon</div>
+                        <div class="calendar-weekday">Tue</div>
+                        <div class="calendar-weekday">Wed</div>
+                        <div class="calendar-weekday">Thu</div>
+                        <div class="calendar-weekday">Fri</div>
+                        <div class="calendar-weekday">Sat</div>
+                        
+                        <!-- Days (will be generated with JavaScript) -->
+                        <!-- First week with empty days -->
+                        <div class="calendar-day"></div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">1</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">2</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">3</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">4</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">5</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">6</div>
+                        </div>
+                        
+                        <!-- Second week -->
+                        <div class="calendar-day">
+                            <div class="calendar-date">7</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">8</div>
+                            <div class="calendar-event pending"></div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">9</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">10</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">11</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">12</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">13</div>
+                        </div>
+                        
+                        <!-- Third week -->
+                        <div class="calendar-day">
+                            <div class="calendar-date">14</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">15</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">16</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">17</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">18</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">19</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">20</div>
+                            <div class="calendar-event confirmed"></div>
+                        </div>
+                        
+                        <!-- Fourth week -->
+                        <div class="calendar-day">
+                            <div class="calendar-date">21</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">22</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">23</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">24</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">25</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">26</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">27</div>
+                        </div>
+                        
+                        <!-- Fifth week -->
+                        <div class="calendar-day">
+                            <div class="calendar-date">28</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">29</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="calendar-date">30</div>
+                        </div>
+                        <div class="calendar-day"></div>
+                        <div class="calendar-day"></div>
+                        <div class="calendar-day"></div>
+                        <div class="calendar-day"></div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 0 10px;">
+                    <div style="display: flex; align-items: center; gap: 30px; justify-content: center; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: white; border: 2px solid var(--glassrain-gold);"></div>
+                            <span style="font-size: 14px;">Requested Appointment</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--glassrain-gold);"></div>
+                            <span style="font-size: 14px;">Confirmed Appointment</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quote Request Modal -->
+    <div id="quote-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('quote-modal')">&times;</button>
+            
+            <div class="modal-header">
+                <div class="modal-banner"></div>
+                <div class="modal-logo">
+                    <img id="quote-modal-logo" src="" alt="Contractor Logo">
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div id="quote-form-content">
+                    <h2 class="modal-title" id="quote-modal-title"></h2>
+                    <div class="modal-subtitle" id="quote-modal-subtitle"></div>
+                    
+                    <div class="modal-rating">
+                        <span class="rating-stars" id="quote-modal-stars"></span>
+                        <span class="rating-count" id="quote-modal-rating-count"></span>
+                    </div>
+                    
+                    <div class="modal-section-title">Select Service Option</div>
+                    <div class="service-options" id="quote-service-options">
+                        <!-- Options will be loaded here -->
+                    </div>
+                    
+                    <div class="modal-section-title">Contact Information</div>
+                    <div class="form-group">
+                        <label class="form-label" for="quote-name">Your Name</label>
+                        <input type="text" id="quote-name" class="form-input" value="John Smith" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label" for="quote-email">Email Address</label>
+                                <input type="email" id="quote-email" class="form-input" value="john.smith@example.com" required>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label" for="quote-phone">Phone Number</label>
+                                <input type="tel" id="quote-phone" class="form-input" value="(555) 123-4567" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-section-title">Service Details</div>
+                    <div class="form-group">
+                        <label class="form-label" for="quote-address">Service Address</label>
+                        <input type="text" id="quote-address" class="form-input" value="123 Main Street, Anytown, CA 94568" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label" for="quote-date">Preferred Date</label>
+                                <input type="date" id="quote-date" class="form-input" required>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label" for="quote-time">Preferred Time</label>
+                                <select id="quote-time" class="form-select" required>
+                                    <option value="">Select time</option>
+                                    <option value="morning">Morning (8am - 12pm)</option>
+                                    <option value="afternoon">Afternoon (12pm - 4pm)</option>
+                                    <option value="evening">Evening (4pm - 8pm)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="quote-notes">Additional Notes</label>
+                        <textarea id="quote-notes" class="form-textarea" placeholder="Any specific details or requests..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn-secondary" onclick="closeModal('quote-modal')">Cancel</button>
+                        <button class="btn-primary" onclick="submitQuoteRequest()">Request Quote</button>
+                    </div>
+                </div>
+                
+                <div id="quote-success" style="display: none;" class="success-message">
+                    <div class="success-icon">✓</div>
+                    <h2 class="success-title">Quote Request Sent!</h2>
+                    <p class="success-text">
+                        Your request has been sent successfully. The contractor will contact you shortly with a detailed quote for your service.
+                    </p>
+                    <button class="btn-primary" onclick="closeModal('quote-modal')">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">GlassRain</div>
+        <div class="footer-links">
+            <a href="#" class="footer-link">About Us</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Contact Us</a>
+        </div>
+        <div class="copyright">
+            &copy; 2025 GlassRain. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let categories = [];
+        let subcategories = [];
+        let services = [];
+        let tiers = [];
+        let contractors = [];
+        let savedQuotes = [];
+        let savedContractors = [];
+        
+        // Service flow state
+        let selectedCategory = null;
+        let selectedSubcategory = null;
+        let selectedTier = null;
+        let selectedContractor = null;
+        
+        // Service images by category (fallback)
+        const categoryIcons = {
+            'Lawn Care': '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" viewBox="0 0 16 16"><path d="M15 13a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8z"/><path d="M12.5 3a.5.5 0 0 1 0 1H3.197A.501.501 0 0 1 3 3.5H1.5a.5.5 0 0 1 0-1H3a.501.501 0 0 1 .197.5H12.5z"/><path d="M3.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5zm9 0a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5z"/></svg>',
+            'Home Cleaning': '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" viewBox="0 0 16 16"><path d="M11 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm1.5.5a3.5 3.5 0 1 0-7 0c0 .24.02.47.07.7l-2.5 3.5c-.15.21-.23.47-.23.74v2.06c0 .28.11.54.3.73l1.94 1.94c.19.19.44.3.73.3h2.06c.27 0 .53-.08.74-.23l3.5-2.5c.23.05.46.07.7.07a3.5 3.5 0 0 0 0-7z"/></svg>',
+            'Plumbing': '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15.528 3.188a.8.8 0 0 1 .472.726V8a.8.8 0 0 1-.472.726 8.896 8.896 0 0 1-.268.128 8.69 8.69 0 0 1-.425.178 8.218 8.218 0 0 1-1.77.427V12a.8.8 0 0 1-.8.8H2.8a.8.8 0 0 1-.8-.8V9.45a8.218 8.218 0 0 1-1.77-.427 8.69 8.69 0 0 1-.425-.178 8.896 8.896 0 0 1-.268-.128A.8.8 0 0 1 0 8V3.917a.8.8 0 0 1 .472-.726 8.9 8.9 0 0 1 .268-.127c.142-.06.283-.116.425-.178A8.198 8.198 0 0 1 3 2.5h10c.639 0 1.257.084 1.835.285.142.061.283.118.425.178.088.038.175.08.268.128z"/></svg>',
+            'Electrical': '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" viewBox="0 0 16 16"><path d="M4.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/><path d="M4.5 2a.5.5 0 0 1 .5.5V3h6v-.5a.5.5 0 0 1 1 0v6a.5.5 0 0 1-1 0V8H5v.5a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5z"/><path d="M10 8h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h1v1H3v1h8V9h-1V8z"/></svg>',
+            'HVAC': '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16a6 6 0 0 0 6-6c0-1.8-1.2-3.6-2-4.9-.6-.9-1.2-1.7-2-2.6L8 0 6 2.5C5.2 3.4 4.6 4.2 4 5.1 3.2 6.4 2 8.2 2 10a6 6 0 0 0 6 6zm0-14.5.7.8c.7.8 1.3 1.6 1.9 2.5.7 1.2 1.9 2.9 1.9 4.2A4.5 4.5 0 0 1 8 13.5a4.5 4.5 0 0 1-4.5-4.5c0-1.3 1.2-3 1.9-4.2.6-.9 1.2-1.7 1.9-2.5l.7-.8z"/></svg>',
+            'Painting': '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" viewBox="0 0 16 16"><path d="M13.5 3a.5.5 0 0 1 .5.5V11H2V3.5a.5.5 0 0 1 .5-.5h11zm-11-1A1.5 1.5 0 0 0 1 3.5V12h14V3.5A1.5 1.5 0 0 0 13.5 2h-11zM2 13.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>',
+            'Renovation': '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" viewBox="0 0 16 16"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207l-5-5-5 5V13.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7.207Z"/></svg>',
+            'default': '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="currentColor" viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/></svg>',
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default for quote form
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const dateInput = document.getElementById('quote-date');
+            if (dateInput) {
+                dateInput.min = tomorrow.toISOString().split('T')[0];
+                dateInput.value = tomorrow.toISOString().split('T')[0];
+            }
+            
+            // Load data
+            fetchCategories();
+            fetchServiceTiers();
+            
+            // Set up activity tabs
+            showActivityTab('saved-quotes-tab');
+        });
+        
+        // Fetch categories from API
+        function fetchCategories() {
+            fetch('/api/service-categories')
+                .then(response => response.json())
+                .then(data => {
+                    categories = data;
+                    renderMainCategories();
+                })
+                .catch(error => {
+                    console.error('Error fetching categories:', error);
+                    document.getElementById('main-categories').innerHTML = 
+                        '<p>Failed to load service categories. Please try again later.</p>';
+                });
+        }
+        
+        // Fetch service tiers from API
+        function fetchServiceTiers() {
+            fetch('/api/service-tiers')
+                .then(response => response.json())
+                .then(data => {
+                    tiers = data;
+                })
+                .catch(error => {
+                    console.error('Error fetching service tiers:', error);
+                });
+        }
+        
+        // Render main categories
+        function renderMainCategories() {
+            const container = document.getElementById('main-categories');
+            let html = '';
+            
+            categories.forEach(category => {
+                const icon = categoryIcons[category.name] || categoryIcons['default'];
+                
+                html += `
+                    <div class="category-card" onclick="selectCategory(${category.id}, '${category.name}')">
+                        <div class="category-icon">${icon}</div>
+                        <div class="category-name">${category.name}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Handle category selection
+        function selectCategory(categoryId, categoryName) {
+            selectedCategory = categories.find(c => c.id === categoryId);
+            
+            // Update UI
+            document.getElementById('selected-category-name').textContent = categoryName;
+            document.getElementById('service-flow').style.display = 'block';
+            document.getElementById('subcategories-step').style.display = 'block';
+            document.getElementById('tiers-step').style.display = 'none';
+            document.getElementById('contractors-step').style.display = 'none';
+            
+            // Update breadcrumb
+            const breadcrumb = document.getElementById('flow-breadcrumb');
+            breadcrumb.innerHTML = `
+                <span class="breadcrumb-item breadcrumb-active">Categories</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${categoryName}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Subcategories</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Tiers</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Contractors</span>
+            `;
+            
+            // Highlight selected category
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Fetch subcategories based on selected category
+            fetchSubcategories(categoryId);
+        }
+        
+        // Fetch subcategories based on category
+        function fetchSubcategories(categoryId) {
+            // In a real implementation, this would be a separate API call
+            // For this demo, we'll simulate subcategories
+            
+            // Show loading state
+            document.getElementById('subcategories-container').innerHTML = '<div class="loading">Loading subcategories...</div>';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // Generate subcategories based on category
+                let subCats = [];
+                
+                if (selectedCategory.name === 'Lawn Care') {
+                    subCats = [
+                        { id: 1, name: 'One-Time Mowing' },
+                        { id: 2, name: 'Regular Lawn Maintenance' },
+                        { id: 3, name: 'Landscaping' },
+                        { id: 4, name: 'Leaf Removal' },
+                        { id: 5, name: 'Hedge Trimming' }
+                    ];
+                } else if (selectedCategory.name === 'Home Cleaning') {
+                    subCats = [
+                        { id: 1, name: 'Regular Cleaning' },
+                        { id: 2, name: 'Deep Cleaning' },
+                        { id: 3, name: 'Move-In/Move-Out Cleaning' },
+                        { id: 4, name: 'Window Cleaning' }
+                    ];
+                } else if (selectedCategory.name === 'Plumbing') {
+                    subCats = [
+                        { id: 1, name: 'Drain Cleaning' },
+                        { id: 2, name: 'Leak Repair' },
+                        { id: 3, name: 'Fixture Installation' },
+                        { id: 4, name: 'Water Heater Service' },
+                        { id: 5, name: 'Pipe Repair' }
+                    ];
+                } else {
+                    // Default subcategories
+                    subCats = [
+                        { id: 1, name: 'Consultation' },
+                        { id: 2, name: 'Repair' },
+                        { id: 3, name: 'Installation' },
+                        { id: 4, name: 'Maintenance' }
+                    ];
+                }
+                
+                subcategories = subCats;
+                renderSubcategories();
+            }, 500);
+        }
+        
+        // Render subcategories
+        function renderSubcategories() {
+            const container = document.getElementById('subcategories-container');
+            let html = '';
+            
+            subcategories.forEach(subcat => {
+                html += `
+                    <button class="subcategory-btn" onclick="selectSubcategory(${subcat.id}, '${subcat.name}')">${subcat.name}</button>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Handle subcategory selection
+        function selectSubcategory(subcategoryId, subcategoryName) {
+            selectedSubcategory = subcategories.find(s => s.id === subcategoryId);
+            
+            // Update UI
+            document.getElementById('selected-subcategory-name').textContent = subcategoryName;
+            document.getElementById('tiers-step').style.display = 'block';
+            document.getElementById('contractors-step').style.display = 'none';
+            
+            // Update breadcrumb
+            const breadcrumb = document.getElementById('flow-breadcrumb');
+            breadcrumb.innerHTML = `
+                <span class="breadcrumb-item breadcrumb-active">Categories</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${selectedCategory.name}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${subcategoryName}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Tiers</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Contractors</span>
+            `;
+            
+            // Highlight selected subcategory
+            document.querySelectorAll('.subcategory-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Render service tiers
+            renderServiceTiers();
+        }
+        
+        // Render service tiers
+        function renderServiceTiers() {
+            const container = document.getElementById('service-tiers');
+            
+            let html = '';
+            tiers.forEach(tier => {
+                let features = [];
+                
+                if (tier.name === 'Standard') {
+                    features = [
+                        'Basic service coverage',
+                        'Standard response time',
+                        'Experienced professionals'
+                    ];
+                } else if (tier.name === 'Premium') {
+                    features = [
+                        'Enhanced service coverage',
+                        'Priority response time',
+                        'Experienced professionals',
+                        'Extended satisfaction guarantee'
+                    ];
+                } else if (tier.name === 'Luxury') {
+                    features = [
+                        'Comprehensive service coverage',
+                        'Same-day response when available',
+                        'Senior professionals',
+                        'Premium satisfaction guarantee',
+                        'Dedicated account manager'
+                    ];
+                }
+                
+                html += `
+                    <div class="tier-card ${tier.name === 'Standard' ? 'selected' : ''}" onclick="selectTier(${tier.id}, '${tier.name}')">
+                        <div class="tier-header">${tier.name}</div>
+                        <div class="tier-body">
+                            <div class="tier-price">${tier.price_multiplier}x</div>
+                            <ul class="tier-features">
+                                ${features.map(feature => `
+                                    <li class="tier-feature">
+                                        <span class="tier-feature-icon">✓</span>
+                                        <span>${feature}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                            <button class="tier-select" onclick="event.stopPropagation(); selectTier(${tier.id}, '${tier.name}')">Select</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Auto-select Standard tier
+            if (tiers.length > 0) {
+                const standardTier = tiers.find(t => t.name === 'Standard') || tiers[0];
+                selectTier(standardTier.id, standardTier.name, false);
+            }
+        }
+        
+        // Handle tier selection
+        function selectTier(tierId, tierName, userClick = true) {
+            selectedTier = tiers.find(t => t.id === tierId);
+            
+            // Update UI
+            document.getElementById('selected-tier-name').textContent = tierName;
+            if (userClick) {
+                document.getElementById('contractors-step').style.display = 'block';
+            }
+            
+            // Update breadcrumb
+            const breadcrumb = document.getElementById('flow-breadcrumb');
+            breadcrumb.innerHTML = `
+                <span class="breadcrumb-item breadcrumb-active">Categories</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${selectedCategory.name}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${selectedSubcategory.name}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${tierName}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item">Contractors</span>
+            `;
+            
+            // Highlight selected tier
+            document.querySelectorAll('.tier-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // If this was triggered programmatically, find the tier card and select it
+            if (!userClick) {
+                document.querySelectorAll('.tier-card').forEach(card => {
+                    if (card.querySelector('.tier-header').textContent === tierName) {
+                        card.classList.add('selected');
+                    }
+                });
+            } else {
+                // If triggered by user, use event.currentTarget
+                if (event && event.currentTarget) {
+                    if (event.currentTarget.classList.contains('tier-card')) {
+                        event.currentTarget.classList.add('selected');
+                    } else {
+                        // The tier-select button was clicked
+                        event.currentTarget.closest('.tier-card').classList.add('selected');
+                    }
+                }
+            }
+            
+            // Fetch contractors for this service
+            fetchContractors();
+        }
+        
+        // Fetch contractors based on selected service
+        function fetchContractors() {
+            // In a real implementation, this would be an API call with parameters
+            // for category, subcategory, and tier
+            
+            // Show loading state
+            document.getElementById('contractors-container').innerHTML = '<div class="loading">Finding the best contractors for you...</div>';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // Generate contractors
+                let contractorsList = [];
+                
+                // Generate contractors based on selected service
+                if (selectedCategory.name === 'Lawn Care') {
+                    contractorsList = [
+                        {
+                            id: 1, 
+                            name: 'GreenCare Lawn',
+                            logo: '/static/images/contractors/greencare.png',
+                            rating: 4.9,
+                            reviews: 128,
+                            years: 12,
+                            employees: '15-20',
+                            distance: '2.3 mi',
+                            tags: ['Insured', 'Background Checked', 'Eco-Friendly'],
+                            basePrice: 75.00
+                        },
+                        {
+                            id: 2, 
+                            name: 'ProLawn Services',
+                            logo: '/static/images/contractors/prolawn.png',
+                            rating: 4.7,
+                            reviews: 94,
+                            years: 8,
+                            employees: '10-15',
+                            distance: '3.7 mi',
+                            tags: ['Insured', 'Background Checked'],
+                            basePrice: 70.00
+                        },
+                        {
+                            id: 3, 
+                            name: 'Elite Yard Care',
+                            logo: '/static/images/contractors/elite.png',
+                            rating: 4.8,
+                            reviews: 76,
+                            years: 5,
+                            employees: '5-10',
+                            distance: '4.1 mi',
+                            tags: ['Insured', 'Satisfaction Guarantee'],
+                            basePrice: 80.00
+                        }
+                    ];
+                } else if (selectedCategory.name === 'Home Cleaning') {
+                    contractorsList = [
+                        {
+                            id: 4, 
+                            name: 'Spotless Pro Cleaning',
+                            logo: '/static/images/contractors/spotless.png',
+                            rating: 4.9,
+                            reviews: 215,
+                            years: 10,
+                            employees: '20-30',
+                            distance: '3.2 mi',
+                            tags: ['Insured', 'Background Checked', 'Eco-Friendly'],
+                            basePrice: 120.00
+                        },
+                        {
+                            id: 5, 
+                            name: 'Crystal Clear Maids',
+                            logo: '/static/images/contractors/crystal.png',
+                            rating: 4.8,
+                            reviews: 178,
+                            years: 12,
+                            employees: '15-20',
+                            distance: '2.9 mi',
+                            tags: ['Insured', 'Background Checked'],
+                            basePrice: 110.00
+                        }
+                    ];
+                } else if (selectedCategory.name === 'Plumbing') {
+                    contractorsList = [
+                        {
+                            id: 6, 
+                            name: 'Reliable Plumbing Co',
+                            logo: '/static/images/contractors/reliable.png',
+                            rating: 4.9,
+                            reviews: 142,
+                            years: 15,
+                            employees: '10-15',
+                            distance: '3.8 mi',
+                            tags: ['Licensed', 'Insured', '24/7 Emergency'],
+                            basePrice: 95.00
+                        },
+                        {
+                            id: 7, 
+                            name: 'Expert Pipe Solutions',
+                            logo: '/static/images/contractors/expert.png',
+                            rating: 4.7,
+                            reviews: 86,
+                            years: 8,
+                            employees: '5-10',
+                            distance: '5.2 mi',
+                            tags: ['Licensed', 'Insured'],
+                            basePrice: 90.00
+                        }
+                    ];
+                } else {
+                    // Default contractors
+                    contractorsList = [
+                        {
+                            id: 8, 
+                            name: 'Premium Home Services',
+                            logo: '/static/images/contractors/premium.png',
+                            rating: 4.8,
+                            reviews: 156,
+                            years: 10,
+                            employees: '15-20',
+                            distance: '3.5 mi',
+                            tags: ['Licensed', 'Insured', 'Satisfaction Guarantee'],
+                            basePrice: 100.00
+                        },
+                        {
+                            id: 9, 
+                            name: 'Quality Pro Services',
+                            logo: '/static/images/contractors/quality.png',
+                            rating: 4.7,
+                            reviews: 124,
+                            years: 7,
+                            employees: '10-15',
+                            distance: '4.3 mi',
+                            tags: ['Licensed', 'Insured'],
+                            basePrice: 95.00
+                        }
+                    ];
+                }
+                
+                // Apply tier multiplier to prices
+                contractorsList.forEach(contractor => {
+                    contractor.adjustedPrice = contractor.basePrice * selectedTier.price_multiplier;
+                });
+                
+                contractors = contractorsList;
+                renderContractors();
+            }, 800);
+        }
+        
+        // Render contractors
+        function renderContractors() {
+            const container = document.getElementById('contractors-container');
+            
+            if (contractors.length === 0) {
+                container.innerHTML = '<p>No contractors found for this service.</p>';
+                return;
+            }
+            
+            let html = '';
+            contractors.forEach(contractor => {
+                // Generate star rating
+                const fullStars = Math.floor(contractor.rating);
+                const hasHalfStar = contractor.rating % 1 >= 0.5;
+                let starRating = '★'.repeat(fullStars);
+                if (hasHalfStar) starRating += '½';
+                
+                html += `
+                    <div class="contractor-card">
+                        <div class="contractor-banner"></div>
+                        <div class="contractor-logo">
+                            <img src="${contractor.logo || '/static/images/contractors/default.png'}" alt="${contractor.name}">
+                        </div>
+                        <div class="contractor-body">
+                            <div class="contractor-name">${contractor.name}</div>
+                            <div class="contractor-rating">
+                                <span class="rating-stars">${starRating}</span>
+                                <span class="rating-count">(${contractor.reviews})</span>
+                            </div>
+                            <div class="contractor-details">
+                                <div class="contractor-detail">
+                                    <span class="contractor-detail-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                                        </svg>
+                                    </span>
+                                    <span>${contractor.distance} away</span>
+                                </div>
+                                <div class="contractor-detail">
+                                    <span class="contractor-detail-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z"/>
+                                        </svg>
+                                    </span>
+                                    <span>${contractor.years} years in business</span>
+                                </div>
+                                <div class="contractor-detail">
+                                    <span class="contractor-detail-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                            <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                                            <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                                        </svg>
+                                    </span>
+                                    <span>${contractor.employees} employees</span>
+                                </div>
+                            </div>
+                            <div class="contractor-tags">
+                                ${contractor.tags.map(tag => `<span class="contractor-tag">${tag}</span>`).join('')}
+                            </div>
+                            <div class="contractor-actions">
+                                <button class="btn-primary" onclick="openQuoteModal(${contractor.id})">Get Quote</button>
+                                <button class="btn-secondary" onclick="saveContractor(${contractor.id})">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Update breadcrumb to show we're at the final step
+            const breadcrumb = document.getElementById('flow-breadcrumb');
+            breadcrumb.innerHTML = `
+                <span class="breadcrumb-item breadcrumb-active">Categories</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${selectedCategory.name}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${selectedSubcategory.name}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">${selectedTier.name}</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item breadcrumb-active">Contractors</span>
+            `;
+        }
+        
+        // Open quote request modal
+        function openQuoteModal(contractorId) {
+            selectedContractor = contractors.find(c => c.id === contractorId);
+            if (!selectedContractor) return;
+            
+            // Update modal content
+            document.getElementById('quote-modal-title').textContent = selectedContractor.name;
+            document.getElementById('quote-modal-subtitle').textContent = `${selectedCategory.name} > ${selectedSubcategory.name}`;
+            document.getElementById('quote-modal-logo').src = selectedContractor.logo || '/static/images/contractors/default.png';
+            
+            // Generate star rating
+            const fullStars = Math.floor(selectedContractor.rating);
+            const hasHalfStar = selectedContractor.rating % 1 >= 0.5;
+            let starRating = '★'.repeat(fullStars);
+            if (hasHalfStar) starRating += '½';
+            
+            document.getElementById('quote-modal-stars').textContent = starRating;
+            document.getElementById('quote-modal-rating-count').textContent = `(${selectedContractor.reviews})`;
+            
+            // Generate service options based on subcategory and tier
+            let optionsHtml = '';
+            
+            if (selectedSubcategory.name === 'One-Time Mowing') {
+                optionsHtml += `
+                    <div class="service-option selected" data-price="${selectedContractor.adjustedPrice.toFixed(2)}">
+                        <div class="service-option-name">Standard Lawn Cut (Up to 5,000 sq ft)</div>
+                        <div class="service-option-price">$${selectedContractor.adjustedPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="service-option" data-price="${(selectedContractor.adjustedPrice * 1.5).toFixed(2)}">
+                        <div class="service-option-name">Large Lawn Cut (5,000-10,000 sq ft)</div>
+                        <div class="service-option-price">$${(selectedContractor.adjustedPrice * 1.5).toFixed(2)}</div>
+                    </div>
+                    <div class="service-option" data-price="${(selectedContractor.adjustedPrice * 2).toFixed(2)}">
+                        <div class="service-option-name">Lawn Cut + Edging + Trimming</div>
+                        <div class="service-option-price">$${(selectedContractor.adjustedPrice * 2).toFixed(2)}</div>
+                    </div>
+                `;
+            } else if (selectedSubcategory.name === 'Regular Cleaning') {
+                optionsHtml += `
+                    <div class="service-option selected" data-price="${selectedContractor.adjustedPrice.toFixed(2)}">
+                        <div class="service-option-name">Standard Cleaning (Up to 2,000 sq ft)</div>
+                        <div class="service-option-price">$${selectedContractor.adjustedPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="service-option" data-price="${(selectedContractor.adjustedPrice * 1.3).toFixed(2)}">
+                        <div class="service-option-name">Standard Cleaning (2,000-3,500 sq ft)</div>
+                        <div class="service-option-price">$${(selectedContractor.adjustedPrice * 1.3).toFixed(2)}</div>
+                    </div>
+                    <div class="service-option" data-price="${(selectedContractor.adjustedPrice * 1.75).toFixed(2)}">
+                        <div class="service-option-name">Standard Cleaning + Inside Appliances</div>
+                        <div class="service-option-price">$${(selectedContractor.adjustedPrice * 1.75).toFixed(2)}</div>
+                    </div>
+                `;
+            } else if (selectedSubcategory.name === 'Drain Cleaning') {
+                optionsHtml += `
+                    <div class="service-option selected" data-price="${selectedContractor.adjustedPrice.toFixed(2)}">
+                        <div class="service-option-name">Single Drain Cleaning</div>
+                        <div class="service-option-price">$${selectedContractor.adjustedPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="service-option" data-price="${(selectedContractor.adjustedPrice * 1.8).toFixed(2)}">
+                        <div class="service-option-name">Multiple Drain Cleaning (Up to 3)</div>
+                        <div class="service-option-price">$${(selectedContractor.adjustedPrice * 1.8).toFixed(2)}</div>
+                    </div>
+                    <div class="service-option" data-price="${(selectedContractor.adjustedPrice * 3).toFixed(2)}">
+                        <div class="service-option-name">Main Line Drain Cleaning</div>
+                        <div class="service-option-price">$${(selectedContractor.adjustedPrice * 3).toFixed(2)}</div>
+                    </div>
+                `;
+            } else {
+                // Default options
+                optionsHtml += `
+                    <div class="service-option selected" data-price="${selectedContractor.adjustedPrice.toFixed(2)}">
+                        <div class="service-option-name">Standard Service</div>
+                        <div class="service-option-price">$${selectedContractor.adjustedPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="service-option" data-price="${(selectedContractor.adjustedPrice * 1.5).toFixed(2)}">
+                        <div class="service-option-name">Premium Service</div>
+                        <div class="service-option-price">$${(selectedContractor.adjustedPrice * 1.5).toFixed(2)}</div>
+                    </div>
+                    <div class="service-option" data-price="${(selectedContractor.adjustedPrice * 2).toFixed(2)}">
+                        <div class="service-option-name">Complete Package</div>
+                        <div class="service-option-price">$${(selectedContractor.adjustedPrice * 2).toFixed(2)}</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('quote-service-options').innerHTML = optionsHtml;
+            
+            // Add click event to service options
+            document.querySelectorAll('.service-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.service-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Reset form
+            document.getElementById('quote-form-content').style.display = 'block';
+            document.getElementById('quote-success').style.display = 'none';
+            
+            // Show modal
+            document.getElementById('quote-modal').classList.add('active');
+        }
+        
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // Submit quote request
+        function submitQuoteRequest() {
+            // Get form data
+            const name = document.getElementById('quote-name').value;
+            const email = document.getElementById('quote-email').value;
+            const phone = document.getElementById('quote-phone').value;
+            const address = document.getElementById('quote-address').value;
+            const date = document.getElementById('quote-date').value;
+            const time = document.getElementById('quote-time').value;
+            const notes = document.getElementById('quote-notes').value;
+            
+            // Validate form
+            if (!name || !email || !phone || !address || !date || !time) {
+                alert('Please fill out all required fields.');
+                return;
+            }
+            
+            // Get selected service option
+            const selectedOption = document.querySelector('.service-option.selected');
+            const optionName = selectedOption.querySelector('.service-option-name').textContent;
+            const optionPrice = selectedOption.getAttribute('data-price');
+            
+            // Add to saved quotes
+            const newQuote = {
+                id: Date.now(),
+                service: `${selectedSubcategory.name} - ${optionName}`,
+                date: new Date().toLocaleDateString(),
+                contractor: {
+                    id: selectedContractor.id,
+                    name: selectedContractor.name,
+                    logo: selectedContractor.logo,
+                    rating: selectedContractor.rating,
+                    reviews: selectedContractor.reviews
+                },
+                price: optionPrice,
+                status: 'pending'
+            };
+            
+            savedQuotes.push(newQuote);
+            
+            // Update UI
+            renderSavedQuotes();
+            
+            // Show success message
+            document.getElementById('quote-form-content').style.display = 'none';
+            document.getElementById('quote-success').style.display = 'block';
+            
+            // Update calendar
+            const quoteDate = new Date(date);
+            const dateString = quoteDate.getDate().toString();
+            
+            document.querySelectorAll('.calendar-day').forEach(day => {
+                const dayDate = day.querySelector('.calendar-date');
+                if (dayDate && dayDate.textContent === dateString) {
+                    // Check if already has an event
+                    let event = day.querySelector('.calendar-event');
+                    if (!event) {
+                        const newEvent = document.createElement('div');
+                        newEvent.className = 'calendar-event pending';
+                        day.appendChild(newEvent);
+                    }
+                }
+            });
+        }
+        
+        // Save contractor for later
+        function saveContractor(contractorId) {
+            const contractor = contractors.find(c => c.id === contractorId);
+            if (!contractor) return;
+            
+            // Check if already saved
+            const alreadySaved = savedContractors.some(c => c.id === contractor.id);
+            if (alreadySaved) {
+                alert('This contractor is already in your saved list.');
+                return;
+            }
+            
+            // Add to saved contractors
+            savedContractors.push(contractor);
+            
+            // Update UI
+            renderSavedContractors();
+            
+            // Show success message
+            alert(`${contractor.name} has been added to your saved contractors.`);
+        }
+        
+        // Render saved quotes
+        function renderSavedQuotes() {
+            const container = document.getElementById('saved-quotes-container');
+            
+            if (savedQuotes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">No saved quotes yet</div>
+                        <div style="color: #777; margin-bottom: 20px;">Your requested quotes will appear here</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            savedQuotes.forEach(quote => {
+                // Generate star rating
+                const fullStars = Math.floor(quote.contractor.rating);
+                const hasHalfStar = quote.contractor.rating % 1 >= 0.5;
+                let starRating = '★'.repeat(fullStars);
+                if (hasHalfStar) starRating += '½';
+                
+                let statusClass = 'status-pending';
+                let statusText = 'Quote Pending';
+                
+                if (quote.status === 'accepted') {
+                    statusClass = 'status-accepted';
+                    statusText = 'Quote Accepted';
+                } else if (quote.status === 'scheduled') {
+                    statusClass = 'status-scheduled';
+                    statusText = 'Appointment Scheduled';
+                }
+                
+                html += `
+                    <div class="quote-card">
+                        <div class="quote-header">
+                            <div class="quote-service">${quote.service}</div>
+                            <div class="quote-date">${quote.date}</div>
+                        </div>
+                        <div class="quote-body">
+                            <div class="quote-contractor">
+                                <div class="quote-logo">
+                                    <img src="${quote.contractor.logo || '/static/images/contractors/default.png'}" alt="${quote.contractor.name}">
+                                </div>
+                                <div>
+                                    <div class="quote-contractor-name">${quote.contractor.name}</div>
+                                    <div class="quote-rating">
+                                        <span class="rating-stars">${starRating}</span>
+                                        <span class="rating-count">(${quote.contractor.reviews})</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quote-price">$${parseFloat(quote.price).toFixed(2)}</div>
+                            <div class="quote-status ${statusClass}">${statusText}</div>
+                            <div class="quote-actions">
+                                <button class="btn-primary" onclick="viewQuoteDetails(${quote.id})">View Details</button>
+                                <button class="btn-secondary" onclick="cancelQuote(${quote.id})">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Render saved contractors
+        function renderSavedContractors() {
+            const container = document.getElementById('saved-contractors-container');
+            
+            if (savedContractors.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">No saved contractors yet</div>
+                        <div style="color: #777; margin-bottom: 20px;">Save contractors to quickly request their services later</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            savedContractors.forEach(contractor => {
+                // Generate star rating
+                const fullStars = Math.floor(contractor.rating);
+                const hasHalfStar = contractor.rating % 1 >= 0.5;
+                let starRating = '★'.repeat(fullStars);
+                if (hasHalfStar) starRating += '½';
+                
+                html += `
+                    <div class="contractor-card">
+                        <div class="contractor-banner"></div>
+                        <div class="contractor-logo">
+                            <img src="${contractor.logo || '/static/images/contractors/default.png'}" alt="${contractor.name}">
+                        </div>
+                        <div class="contractor-body">
+                            <div class="contractor-name">${contractor.name}</div>
+                            <div class="contractor-rating">
+                                <span class="rating-stars">${starRating}</span>
+                                <span class="rating-count">(${contractor.reviews})</span>
+                            </div>
+                            <div class="contractor-details">
+                                <div class="contractor-detail">
+                                    <span class="contractor-detail-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                                        </svg>
+                                    </span>
+                                    <span>${contractor.distance} away</span>
+                                </div>
+                                <div class="contractor-detail">
+                                    <span class="contractor-detail-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z"/>
+                                        </svg>
+                                    </span>
+                                    <span>${contractor.years} years in business</span>
+                                </div>
+                                <div class="contractor-detail">
+                                    <span class="contractor-detail-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                            <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                                            <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                                        </svg>
+                                    </span>
+                                    <span>${contractor.employees} employees</span>
+                                </div>
+                            </div>
+                            <div class="contractor-tags">
+                                ${contractor.tags.map(tag => `<span class="contractor-tag">${tag}</span>`).join('')}
+                            </div>
+                            <div class="contractor-actions">
+                                <button class="btn-primary" onclick="contactSavedContractor(${contractor.id})">Contact</button>
+                                <button class="btn-secondary" onclick="removeSavedContractor(${contractor.id})">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // View quote details
+        function viewQuoteDetails(quoteId) {
+            alert('This feature will be available in the next update.');
+        }
+        
+        // Cancel a quote
+        function cancelQuote(quoteId) {
+            if (confirm('Are you sure you want to cancel this quote request?')) {
+                // Remove quote from saved quotes
+                savedQuotes = savedQuotes.filter(q => q.id !== quoteId);
+                
+                // Update UI
+                renderSavedQuotes();
+            }
+        }
+        
+        // Contact saved contractor
+        function contactSavedContractor(contractorId) {
+            const contractor = savedContractors.find(c => c.id === contractorId);
+            if (!contractor) return;
+            
+            alert(`This feature will connect you with ${contractor.name} in the next update.`);
+        }
+        
+        // Remove saved contractor
+        function removeSavedContractor(contractorId) {
+            if (confirm('Are you sure you want to remove this contractor from your saved list?')) {
+                // Remove contractor from saved contractors
+                savedContractors = savedContractors.filter(c => c.id !== contractorId);
+                
+                // Update UI
+                renderSavedContractors();
+            }
+        }
+        
+        // Show activity tab
+        function showActivityTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.activity-tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).style.display = 'block';
+            
+            // Update active tab
+            document.querySelectorAll('.activity-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelector(`.activity-tab[onclick="showActivityTab('${tabId}')"]`).classList.add('active');
+        }
+        
+        // Handle review submission
+        function submitReview(contractorId, platform) {
+            alert(`This will redirect to ${platform} to leave a review in the next update.`);
+        }
+    </script>
+</body>
+</html>

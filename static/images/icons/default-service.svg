@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120px" height="120px" viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Default Service Icon</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient">
+            <stop stop-color="#3498DB" offset="0%"></stop>
+            <stop stop-color="#2980B9" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle fill="url(#linearGradient)" cx="60" cy="60" r="60"></circle>
+        <path d="M85,60 C85,73.807 73.807,85 60,85 C46.193,85 35,73.807 35,60 C35,46.193 46.193,35 60,35 C73.807,35 85,46.193 85,60 Z M60,40 C48.954,40 40,48.954 40,60 C40,71.046 48.954,80 60,80 C71.046,80 80,71.046 80,60 C80,48.954 71.046,40 60,40 Z" fill="#FFFFFF"></path>
+        <path d="M70,50 L70,70 L50,70 L50,50 L70,50 Z M65,55 L55,55 L55,65 L65,65 L65,55 Z" fill="#FFFFFF"></path>
+        <path d="M77.5,42.5 L85,35 M42.5,77.5 L35,85 M77.5,77.5 L85,85 M42.5,42.5 L35,35" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"></path>
+    </g>
+</svg>

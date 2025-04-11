@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - AR Room Scanner</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #CFA43B;
+            --primary-gold-hover: #E6C878;
+            --accent-blue: #67B7D1;
+            --deep-charcoal: #1F1F1F;
+            --soft-gray: #F2F2F2;
+            --off-white: #FCFCFC;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--off-white);
+            color: var(--deep-charcoal);
+            min-height: 100vh;
+        }
+        
+        .ar-viewer {
+            width: 100%;
+            height: 80vh;
+            background-color: var(--soft-gray);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            --poster-color: transparent;
+            --progress-bar-color: var(--primary-gold);
+            --progress-mask: var(--primary-gold);
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .btn-ar {
+            background-color: var(--primary-gold);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-ar:hover {
+            background-color: var(--primary-gold-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-ar svg {
+            margin-right: 8px;
+        }
+        
+        .tips-panel {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .tip-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .tip-icon {
+            width: 32px;
+            height: 32px;
+            background-color: rgba(207, 164, 59, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-gold);
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .placeholder-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+        }
+        
+        .ar-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            max-width: 90%;
+        }
+        
+        .ar-message.active {
+            display: block;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: var(--soft-gray);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-gold);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center">
+                <h1 class="text-2xl font-bold" style="color: var(--primary-gold);">GlassRain</h1>
+            </a>
+            <nav>
+                <a href="/dashboard" class="mr-6 font-medium" style="color: var(--deep-charcoal);">Dashboard</a>
+                <a href="/address-entry" class="font-medium" style="color: var(--deep-charcoal);">Address Entry</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold" style="color: var(--deep-charcoal);">AR Room Scanner</h2>
+            <a href="/dashboard" class="btn-ar px-4 py-2 rounded-lg text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <div class="relative ar-viewer">
+                    <model-viewer id="ar-model" 
+                        src="/static/models/room_default.glb" 
+                        alt="3D room model" 
+                        ar
+                        ar-modes="webxr scene-viewer quick-look"
+                        camera-controls
+                        shadow-intensity="1"
+                        environment-image="/static/images/neutral.hdr"
+                        exposure="1.5"
+                        poster="/static/images/ar-poster.webp"
+                        auto-rotate>
+                        
+                        <div class="placeholder-message" slot="poster">
+                            <h3 class="text-xl font-bold mb-2" style="color: var(--primary-gold);">AR Room Scanner</h3>
+                            <p class="mb-4">Use your device to scan your room and visualize home improvements</p>
+                            <button id="load-model" class="btn-ar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Start Scanning
+                            </button>
+                        </div>
+                        
+                        <button slot="ar-button" class="btn-ar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                            View in Your Room
+                        </button>
+                    </model-viewer>
+                    
+                    <div class="controls">
+                        <button id="save-scan" class="btn-ar opacity-0 pointer-events-none transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Save Room Scan
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lg:col-span-1">
+                <div class="tips-panel">
+                    <h3 class="text-xl font-bold mb-4" style="color: var(--primary-gold);">AR Scanning Tips</h3>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-1">Ensure Good Lighting</h4>
+                            <p class="text-sm text-gray-600">Make sure your room is well-lit for the best scanning results.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-1">Clear Floor Space</h4>
+                            <p class="text-sm text-gray-600">Move small obstacles from the floor for better detection.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-1">Scan Slowly</h4>
+                            <p class="text-sm text-gray-600">Move your device slowly to capture detailed room data.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-1">Include All Corners</h4>
+                            <p class="text-sm text-gray-600">Make sure to capture all corners and edges of the room.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tips-panel mt-6">
+                    <h3 class="text-xl font-bold mb-4" style="color: var(--primary-gold);">What You Can Do</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center mr-3" style="background-color: rgba(207, 164, 59, 0.1); color: var(--primary-gold);">✓</div>
+                            <span>Place virtual furniture in your room</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center mr-3" style="background-color: rgba(207, 164, 59, 0.1); color: var(--primary-gold);">✓</div>
+                            <span>Preview paint colors and materials</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center mr-3" style="background-color: rgba(207, 164, 59, 0.1); color: var(--primary-gold);">✓</div>
+                            <span>Measure room dimensions accurately</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center mr-3" style="background-color: rgba(207, 164, 59, 0.1); color: var(--primary-gold);">✓</div>
+                            <span>Share designs with contractors</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="ar-message" id="ar-success-message">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" style="color: var(--primary-gold);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="text-xl font-bold mb-2" style="color: var(--deep-charcoal);">Room Scan Saved!</h3>
+        <p class="text-gray-600 mb-4">Your room scan has been saved successfully. You can now place furniture and visualize home improvements.</p>
+        <div class="flex justify-center space-x-4">
+            <button id="continue-button" class="btn-ar px-6 py-2">Continue</button>
+        </div>
+    </div>
+    
+    <div class="ar-message" id="ar-scanning-message">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 animate-spin" style="color: var(--primary-gold);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <h3 class="text-xl font-bold mb-2" style="color: var(--deep-charcoal);">Processing Room Scan</h3>
+        <p class="text-gray-600 mb-4">Please wait while we process your room data. This will only take a moment.</p>
+        <div class="progress-bar">
+            <div class="progress-fill" id="scan-progress"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const model = document.getElementById('ar-model');
+            const saveBtn = document.getElementById('save-scan');
+            const loadBtn = document.getElementById('load-model');
+            const overlay = document.getElementById('overlay');
+            const successMessage = document.getElementById('ar-success-message');
+            const scanningMessage = document.getElementById('ar-scanning-message');
+            const continueButton = document.getElementById('continue-button');
+            const scanProgress = document.getElementById('scan-progress');
+            
+            // Show save button after model loads
+            model.addEventListener('load', function() {
+                saveBtn.classList.remove('opacity-0');
+                saveBtn.classList.add('opacity-100');
+                saveBtn.classList.remove('pointer-events-none');
+            });
+            
+            // Manual load button
+            if (loadBtn) {
+                loadBtn.addEventListener('click', function() {
+                    model.dismissPoster();
+                });
+            }
+            
+            // Save scan functionality
+            saveBtn.addEventListener('click', function() {
+                // Show scanning message
+                overlay.classList.add('active');
+                scanningMessage.classList.add('active');
+                
+                // Simulate progress
+                let progress = 0;
+                const interval = setInterval(function() {
+                    progress += 5;
+                    scanProgress.style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        
+                        // Hide scanning message
+                        scanningMessage.classList.remove('active');
+                        
+                        // Show success message
+                        successMessage.classList.add('active');
+                        
+                        // Save scan data to server
+                        saveScanData();
+                    }
+                }, 100);
+            });
+            
+            // Close modals
+            continueButton.addEventListener('click', function() {
+                successMessage.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            // Helper function to save scan data
+            function saveScanData() {
+                // Create simple room data - client-side only
+                const roomData = {
+                    scan_data: {
+                        room_type: "living_room",
+                        dimensions: {
+                            width: 4.5,
+                            length: 6.2,
+                            height: 2.8
+                        },
+                        corners: [
+                            {x: 0, y: 0, z: 0},
+                            {x: 4.5, y: 0, z: 0},
+                            {x: 4.5, y: 0, z: 6.2},
+                            {x: 0, y: 0, z: 6.2}
+                        ],
+                        walls: [
+                            {id: 1, start: 0, end: 1, type: "standard"},
+                            {id: 2, start: 1, end: 2, type: "standard"},
+                            {id: 3, start: 2, end: 3, type: "standard"},
+                            {id: 4, start: 3, end: 0, type: "standard"}
+                        ],
+                        features: [
+                            {type: "window", wall: 2, position: 0.5, width: 1.2, height: 1.4},
+                            {type: "door", wall: 4, position: 0.3, width: 0.9, height: 2.1}
+                        ],
+                        floor_material: "hardwood",
+                        wall_color: "#F5F5F5",
+                        timestamp: new Date().toISOString()
+                    },
+                    room_id: 1
+                };
+                
+                // Send to server
+                fetch('/api/save-scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(roomData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Scan saved successfully:', data);
+                })
+                .catch(error => {
+                    console.error('Error saving scan:', error);
+                });
+            }
+            
+            // Check AR support
+            if (model && !model.canActivateAR) {
+                document.querySelector('button[slot="ar-button"]').style.display = 'none';
+                
+                const arNotSupportedMessage = document.createElement('div');
+                arNotSupportedMessage.className = 'absolute bottom-4 left-0 right-0 text-center px-4';
+                arNotSupportedMessage.innerHTML = `
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 inline-block text-left">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    AR is not supported on this device. You can still explore the 3D model.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                model.appendChild(arNotSupportedMessage);
+            }
+        });
+    </script>
+</body>
+</html>

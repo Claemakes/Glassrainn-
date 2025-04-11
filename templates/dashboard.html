@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Home Intelligence</title>
+    
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    
+    <!-- GlassRain Mapbox 3D Extension -->
+    <link href="{{ url_for('static', filename='mapbox3d.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='mapbox3d.js') }}"></script>
+    
+    <!-- Data Cache script for better performance -->
+    <script src="{{ url_for('static', filename='js/data_cache.js') }}"></script>
+    
+    <style>
+        /* GlassRain Color Scheme */
+        :root {
+            --glassrain-gold: #C29E49;
+            --midnight-black: #1A1A1A;
+            --rain-slate: #2E2E2E;
+            --cloud-white: #F8F8F8;
+            --mist-gray: #E5E5E5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--midnight-black);
+            color: white;
+            overflow-x: hidden;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 64px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-tab {
+            padding: 8px 2px;
+            color: white;
+            text-decoration: none;
+            position: relative;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tab.active {
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--glassrain-gold);
+        }
+
+        /* Main Dashboard Layout */
+        .dashboard-container {
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            padding-top: 64px; /* Header height */
+        }
+        
+        /* Energy Score Widget */
+        .energy-score {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 72px;
+            height: 72px;
+            border: 2px solid var(--glassrain-gold);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--glassrain-gold);
+            background-color: rgba(26, 26, 26, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .energy-score:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(26, 26, 26, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 8px 16px;
+            border-radius: 24px;
+            z-index: 10;
+            font-weight: 500;
+        }
+        
+        .weather-icon {
+            font-size: 24px;
+            color: var(--glassrain-gold);
+        }
+        
+        .weather-temp {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .weather-desc {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* 3D Home Visualization */
+        .home-3d-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #mapbox-3d-container {
+            width: 100%;
+            height: 75%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(26, 26, 26, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--glassrain-gold);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 16px;
+            font-size: 16px;
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Home Controls */
+        .home-3d-controls {
+            position: absolute;
+            bottom: 32px;
+            background-color: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 8px 16px;
+            border-radius: 28px;
+            display: flex;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .home-3d-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .home-3d-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Go Inside Button */
+        .go-inside-btn {
+            position: absolute;
+            bottom: 96px;
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .go-inside-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            background-color: #d4b05e;
+        }
+
+        /* Property Stats */
+        .property-stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            background-color: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 12px;
+            margin-top: 24px;
+        }
+        
+        .property-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 24px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .property-stat:last-child {
+            border-right: none;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value .underline {
+            border-bottom: 2px solid var(--glassrain-gold);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Action Cards */
+        .action-cards {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1000px;
+            margin: 24px auto 32px;
+            gap: 20px;
+            padding: 0 24px;
+        }
+        
+        .action-card {
+            flex: 1;
+            background-color: rgba(46, 46, 46, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .card-content {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Service FAB */
+        .service-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 72px;
+            height: 72px;
+            background-color: var(--glassrain-gold);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .service-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .fab-icon {
+            font-size: 24px;
+            color: var(--midnight-black);
+        }
+        
+        /* Chat Interface */
+        .ai-chat-container {
+            position: fixed;
+            bottom: 32px;
+            left: 32px;
+            width: 320px;
+            height: 400px;
+            background-color: rgba(26, 26, 26, 0.9);
+            border-radius: 12px;
+            border: 1px solid var(--glassrain-gold);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(calc(100% - 48px));
+        }
+        
+        .ai-chat-container.expanded {
+            transform: translateY(0);
+        }
+        
+        .chat-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(194, 158, 73, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .chat-title {
+            font-weight: 500;
+            font-size: 15px;
+            color: var(--glassrain-gold);
+        }
+        
+        .chat-toggle {
+            color: white;
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        .ai-chat-container.expanded .chat-toggle {
+            transform: rotate(180deg);
+        }
+        
+        .chat-log {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background-color: rgba(46, 46, 46, 0.8);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: rgba(194, 158, 73, 0.3);
+            border-bottom-right-radius: 4px;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid rgba(194, 158, 73, 0.3);
+        }
+        
+        #user-input {
+            flex: 1;
+            background-color: rgba(46, 46, 46, 0.8);
+            border: 1px solid rgba(194, 158, 73, 0.3);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        #user-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        #send-btn {
+            background-color: var(--glassrain-gold);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-left: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        #send-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Mobile Touch Instructions */
+        .touch-instructions {
+            position: absolute;
+            bottom: 140px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 100;
+            transition: opacity 0.5s ease;
+        }
+        
+        .touch-tip {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(194, 158, 73, 0.3);
+        }
+        
+        .tip-icon {
+            font-size: 20px;
+        }
+        
+        .tip-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">GlassRain</div>
+        <nav class="nav-tabs">
+            <a href="/dashboard" class="nav-tab active">Home</a>
+            <a href="/elevate" class="nav-tab">Elevate</a>
+            <a href="/services" class="nav-tab">Services</a>
+            <a href="/diy" class="nav-tab">DIY</a>
+            <a href="/settings" class="nav-tab">Account</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Energy Score Widget -->
+        <div class="energy-score" style="color: {{ property.energy_color if property.energy_color else '#C29E49' }}">{{ property.energy_score }}</div>
+        
+        <!-- Weather Widget -->
+        <div class="weather-widget">
+            <div class="weather-icon">☀️</div>
+            <div class="weather-info">
+                <div class="weather-temp">72°</div>
+                <div class="weather-desc">Mostly sunny</div>
+            </div>
+        </div>
+        
+        <div class="home-3d-wrapper">
+            <!-- 3D Home Visualization -->
+            <div id="mapbox-3d-container">
+                <div id="map-loading" class="loading-overlay">
+                    <div style="text-align: center;">
+                        <div class="loader"></div>
+                        <div class="loading-text">Loading your home model...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Go Inside Button -->
+            <button class="go-inside-btn" onclick="window.location.href='/elevate'">Go Inside</button>
+            
+            <!-- 3D Controls -->
+            <div class="home-3d-controls">
+                <button class="home-3d-btn" title="Rotate Left" onclick="rotateBuildingView(-20)">↺</button>
+                <button class="home-3d-btn" title="Zoom In" onclick="zoomBuildingView(1)">+</button>
+                <button class="home-3d-btn" title="Zoom Out" onclick="zoomBuildingView(-1)">-</button>
+                <button class="home-3d-btn" title="Rotate Right" onclick="rotateBuildingView(20)">↻</button>
+            </div>
+            
+            <!-- Property Stats -->
+            <div class="property-stats">
+                <div class="property-stat">
+                    <div class="stat-value">{{ property.square_feet|int }} <span class="unit">sqft</span></div>
+                    <div class="stat-label">Area</div>
+                </div>
+                <div class="property-stat">
+                    <div class="stat-value">{{ property.year_built|int }}</div>
+                    <div class="stat-label">Year</div>
+                </div>
+                <div class="property-stat">
+                    <div class="stat-value">{{ property.bedrooms|int }} <span class="unit">rooms</span></div>
+                    <div class="stat-label">Est value</div>
+                </div>
+                <div class="property-stat">
+                    <div class="stat-value">{{ property.formatted_value }}</div>
+                    <div class="stat-label"></div>
+                </div>
+            </div>
+            
+            <!-- Action Cards -->
+            <div class="action-cards">
+                <div class="action-card">
+                    <div class="card-title">Next Suggested Service</div>
+                    <div class="card-content">Roof inspection recommended</div>
+                </div>
+                <div class="action-card">
+                    <div class="card-title">Your Last Upgrade</div>
+                    <div class="card-content">Attic insulation added in 2021</div>
+                </div>
+                <div class="action-card">
+                    <div class="card-title">Seasonal To-Do</div>
+                    <div class="card-content">Clean gutters before-summer</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Service FAB -->
+        <div class="service-fab" onclick="window.location.href='/services'">
+            <div class="fab-icon">+</div>
+        </div>
+    </div>
+
+    <!-- Enhanced mobile touch controls and data caching -->
+    <script src="{{ url_for('static', filename='js/mobile_touch_controls.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/data_cache.js') }}"></script>
+    
+    <!-- Script to control 3D model and load home data -->
+    <script>
+        // Define global reference for MapboxGL3D integration
+        let mapbox3D = null;
+        let touchControls = null;
+        
+        // Define building view control functions
+        function rotateBuildingView(degrees) {
+            // Pass rotation to map
+            if (mapbox3D && mapbox3D.map) {
+                // Get current bearing and add the new degrees
+                const currentBearing = mapbox3D.map.getBearing();
+                mapbox3D.map.easeTo({
+                    bearing: currentBearing + degrees,
+                    duration: 300
+                });
+            } else {
+                console.log('Rotate building by ' + degrees + ' degrees');
+            }
+        }
+        
+        function zoomBuildingView(zoomFactor) {
+            // Pass zoom to map
+            if (mapbox3D && mapbox3D.map) {
+                // Get current zoom and add the factor
+                const currentZoom = mapbox3D.map.getZoom();
+                mapbox3D.map.easeTo({
+                    zoom: currentZoom + zoomFactor,
+                    duration: 300
+                });
+            } else {
+                console.log('Zoom building by factor ' + zoomFactor);
+            }
+        }
+        
+        // Load address information and initialize 3D model when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if we have a current address ID
+            const addressId = localStorage.getItem('currentAddressId');
+            
+            // Try to get stored coordinates from local storage
+            let storedLat = localStorage.getItem('propertyLat');
+            let storedLng = localStorage.getItem('propertyLng');
+            
+            // Default coordinates if none are found (will be overwritten if we have address data)
+            let coordinates = {
+                lat: storedLat ? parseFloat(storedLat) : 40.7128,
+                lng: storedLng ? parseFloat(storedLng) : -74.006
+            };
+            
+            // Initialize the 3D model with available coordinates
+            if (typeof initMapbox3D === 'function') {
+                initMapbox3D('mapbox-3d-container', coordinates, function(map) {
+                    // Store the map reference for controls
+                    mapbox3D = { map: map };
+                    
+                    // Initialize enhanced touch controls for mobile
+                    touchControls = new GlassRainTouchControls(
+                        document.getElementById('mapbox-3d-container'),
+                        {
+                            map: map,
+                            rotationSensitivity: 0.3,
+                            zoomSensitivity: 0.03,
+                            inertia: true,
+                            boundaryCheck: true,
+                            doubleTapZoom: true
+                        }
+                    );
+                    
+                    // Add mobile-specific instruction element for first-time users
+                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                    if (isMobile) {
+                        const touchInstructions = document.createElement('div');
+                        touchInstructions.className = 'touch-instructions';
+                        touchInstructions.innerHTML = `
+                            <div class="touch-tip">
+                                <div class="tip-icon">👆</div>
+                                <div class="tip-text">Drag to rotate</div>
+                            </div>
+                            <div class="touch-tip">
+                                <div class="tip-icon">👆👆</div>
+                                <div class="tip-text">Pinch to zoom</div>
+                            </div>
+                        `;
+                        document.getElementById('mapbox-3d-container').appendChild(touchInstructions);
+                        
+                        // Auto-hide instructions after 5 seconds
+                        setTimeout(() => {
+                            touchInstructions.style.opacity = '0';
+                            setTimeout(() => {
+                                touchInstructions.remove();
+                            }, 500);
+                        }, 5000);
+                    }
+                    
+                    // Hide loading overlay when map is loaded
+                    document.getElementById('map-loading').style.display = 'none';
+                });
+            } else if (typeof window.MapboxGL3D !== 'undefined' && typeof window.MapboxGL3D.init === 'function') {
+                // Use the global namespace version if available
+                window.MapboxGL3D.init('mapbox-3d-container', coordinates, function(map) {
+                    // Store map reference
+                    mapbox3D = { map: map };
+                    
+                    // Initialize enhanced touch controls for mobile
+                    touchControls = new GlassRainTouchControls(
+                        document.getElementById('mapbox-3d-container'),
+                        {
+                            map: map,
+                            rotationSensitivity: 0.3,
+                            zoomSensitivity: 0.03,
+                            inertia: true,
+                            boundaryCheck: true,
+                            doubleTapZoom: true
+                        }
+                    );
+                    
+                    // Add mobile-specific instruction element for first-time users
+                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                    if (isMobile) {
+                        const touchInstructions = document.createElement('div');
+                        touchInstructions.className = 'touch-instructions';
+                        touchInstructions.innerHTML = `
+                            <div class="touch-tip">
+                                <div class="tip-icon">👆</div>
+                                <div class="tip-text">Drag to rotate</div>
+                            </div>
+                            <div class="touch-tip">
+                                <div class="tip-icon">👆👆</div>
+                                <div class="tip-text">Pinch to zoom</div>
+                            </div>
+                        `;
+                        document.getElementById('mapbox-3d-container').appendChild(touchInstructions);
+                        
+                        // Auto-hide instructions after 5 seconds
+                        setTimeout(() => {
+                            touchInstructions.style.opacity = '0';
+                            setTimeout(() => {
+                                touchInstructions.remove();
+                            }, 500);
+                        }, 5000);
+                    }
+                    
+                    // Hide loading overlay when map is loaded
+                    document.getElementById('map-loading').style.display = 'none';
+                });
+            } else {
+                console.error('MapboxGL3D not loaded properly');
+                // Hide loading with error message
+                const loadingElement = document.getElementById('map-loading');
+                if (loadingElement) {
+                    loadingElement.innerHTML = '<div style="text-align: center;"><h3 style="color: white;">Unable to load 3D view</h3><p style="color: white;">Please refresh the page to try again.</p></div>';
+                }
+            }
+            
+            // Initialize data cache for improved performance
+            const dataCache = new GlassRainDataCache({
+                debug: false,
+                maxCacheAge: 1800000 // 30 minutes
+            });
+            
+            // Update weather widget with loading state
+            const weatherWidget = document.querySelector('.weather-widget');
+            if (weatherWidget) {
+                weatherWidget.innerHTML = `
+                    <div class="weather-icon">⟳</div>
+                    <div class="weather-info">
+                        <div class="weather-temp">Loading</div>
+                        <div class="weather-desc">weather data...</div>
+                    </div>
+                `;
+            }
+            
+            if (addressId) {
+                // Function to update the 3D model with address data
+                const updateModelWithAddress = (data) => {
+                    if (data.addresses && data.addresses.length > 0) {
+                        // Find the address by ID or use the first one
+                        const address = data.addresses.find(addr => addr.id == addressId) || data.addresses[0];
+                        
+                        if (address) {
+                            // Update action cards with address-specific data if available
+                            if (address.suggested_service) {
+                                const suggestedServiceCard = document.querySelector('.action-card:nth-child(1) .card-content');
+                                if (suggestedServiceCard) {
+                                    suggestedServiceCard.textContent = address.suggested_service;
+                                }
+                            }
+                            
+                            if (address.last_upgrade) {
+                                const lastUpgradeCard = document.querySelector('.action-card:nth-child(2) .card-content');
+                                if (lastUpgradeCard) {
+                                    lastUpgradeCard.textContent = address.last_upgrade;
+                                }
+                            }
+                            
+                            if (address.seasonal_todo) {
+                                const seasonalTodoCard = document.querySelector('.action-card:nth-child(3) .card-content');
+                                if (seasonalTodoCard) {
+                                    seasonalTodoCard.textContent = address.seasonal_todo;
+                                }
+                            }
+                            
+                            // If we have coordinates in the address, update the 3D model
+                            if (address.lat && address.lng) {
+                                // Store coordinates in localStorage for future use
+                                localStorage.setItem('propertyLat', address.lat);
+                                localStorage.setItem('propertyLng', address.lng);
+                                
+                                // Update the 3D model with the new coordinates
+                                if (typeof updatePropertyLocation === 'function') {
+                                    updatePropertyLocation({
+                                        lat: parseFloat(address.lat),
+                                        lng: parseFloat(address.lng)
+                                    });
+                                } else if (typeof window.MapboxGL3D !== 'undefined' && 
+                                    typeof window.MapboxGL3D.updatePropertyLocation === 'function') {
+                                    window.MapboxGL3D.updatePropertyLocation({
+                                        lat: parseFloat(address.lat),
+                                        lng: parseFloat(address.lng)
+                                    });
+                                }
+                                
+                                // Also update weather data if coordinates are available
+                                fetchWeatherData(address.lat, address.lng);
+                            }
+                        }
+                    }
+                };
+                
+                // Fetch address details from the API with caching
+                dataCache.fetchWithCache('/api/addresses', {
+                    cacheKey: 'addresses',
+                    cacheTTL: 1800000, // 30 minutes
+                    backgroundRefresh: true,
+                    onProgress: (progress, complete, data) => {
+                        if (complete && data) {
+                            updateModelWithAddress(data);
+                        }
+                    }
+                }).then(updateModelWithAddress)
+                .catch(error => {
+                    console.error('Error fetching addresses:', error);
+                });
+            }
+            
+            // Function to fetch and update weather data
+            function fetchWeatherData(lat, lng) {
+                if (!lat || !lng) return;
+                
+                // Try to get from cache first
+                dataCache.get('weather_' + lat.toFixed(2) + '_' + lng.toFixed(2))
+                    .then(cachedWeather => {
+                        if (cachedWeather) {
+                            updateWeatherWidget(cachedWeather);
+                            return;
+                        }
+                        
+                        // Fetch new weather data if not in cache
+                        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data && data.current) {
+                                    const weatherData = {
+                                        temp: Math.round(data.current.temperature_2m),
+                                        code: data.current.weather_code,
+                                        description: getWeatherDescription(data.current.weather_code)
+                                    };
+                                    
+                                    // Cache the weather data
+                                    dataCache.set('weather_' + lat.toFixed(2) + '_' + lng.toFixed(2), 
+                                        weatherData, { maxAge: 3600000 }); // 1 hour
+                                    
+                                    // Update the UI
+                                    updateWeatherWidget(weatherData);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching weather:', error);
+                                updateWeatherWidget({ temp: '--', description: 'Weather unavailable' });
+                            });
+                    });
+            }
+            
+            // Update the weather widget with data
+            function updateWeatherWidget(weatherData) {
+                const weatherWidget = document.querySelector('.weather-widget');
+                if (!weatherWidget) return;
+                
+                const icon = getWeatherIcon(weatherData.code);
+                
+                weatherWidget.innerHTML = `
+                    <div class="weather-icon">${icon}</div>
+                    <div class="weather-info">
+                        <div class="weather-temp">${weatherData.temp}°</div>
+                        <div class="weather-desc">${weatherData.description}</div>
+                    </div>
+                `;
+            }
+            
+            // Helper function to get weather description from code
+            function getWeatherDescription(code) {
+                const codeMap = {
+                    0: 'Clear sky',
+                    1: 'Mainly clear',
+                    2: 'Partly cloudy',
+                    3: 'Overcast',
+                    45: 'Foggy',
+                    48: 'Depositing rime fog',
+                    51: 'Light drizzle',
+                    53: 'Moderate drizzle',
+                    55: 'Dense drizzle',
+                    56: 'Light freezing drizzle',
+                    57: 'Dense freezing drizzle',
+                    61: 'Slight rain',
+                    63: 'Moderate rain',
+                    65: 'Heavy rain',
+                    66: 'Light freezing rain',
+                    67: 'Heavy freezing rain',
+                    71: 'Slight snow fall',
+                    73: 'Moderate snow fall',
+                    75: 'Heavy snow fall',
+                    77: 'Snow grains',
+                    80: 'Slight rain showers',
+                    81: 'Moderate rain showers',
+                    82: 'Violent rain showers',
+                    85: 'Slight snow showers',
+                    86: 'Heavy snow showers',
+                    95: 'Thunderstorm',
+                    96: 'Thunderstorm with slight hail',
+                    99: 'Thunderstorm with heavy hail'
+                };
+                
+                return codeMap[code] || 'Unknown weather';
+            }
+            
+            // Helper function to get weather icon from code
+            function getWeatherIcon(code) {
+                if (code === undefined) return '⟳';
+                
+                if (code === 0) return '☀️'; // Clear
+                if (code === 1) return '🌤️'; // Mainly clear
+                if (code === 2) return '⛅'; // Partly cloudy
+                if (code === 3) return '☁️'; // Overcast
+                if (code >= 45 && code <= 48) return '🌫️'; // Fog
+                if (code >= 51 && code <= 57) return '🌧️'; // Drizzle
+                if (code >= 61 && code <= 67) return '🌧️'; // Rain
+                if (code >= 71 && code <= 77) return '❄️'; // Snow
+                if (code >= 80 && code <= 82) return '🌦️'; // Rain showers
+                if (code >= 85 && code <= 86) return '🌨️'; // Snow showers
+                if (code >= 95) return '⛈️'; // Thunderstorm
+                
+                return '🌡️'; // Default
+            }
+            }
+        });
+        
+        // Chat interface functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create and append the chat container
+            const chatContainer = document.createElement('div');
+            chatContainer.className = 'ai-chat-container';
+            chatContainer.innerHTML = `
+                <div class="chat-header">
+                    <div class="chat-title">GlassRain Assistant</div>
+                    <div class="chat-toggle">▲</div>
+                </div>
+                <div id="chat-log" class="chat-log"></div>
+                <div class="chat-input-container">
+                    <input type="text" id="user-input" placeholder="Ask about your home..." />
+                    <button id="send-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(chatContainer);
+            
+            // Get references to chat elements
+            const chatHeader = chatContainer.querySelector('.chat-header');
+            const chatLog = document.getElementById('chat-log');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            
+            // Toggle chat expansion
+            chatHeader.addEventListener('click', function() {
+                chatContainer.classList.toggle('expanded');
+                const toggle = chatContainer.querySelector('.chat-toggle');
+                toggle.textContent = chatContainer.classList.contains('expanded') ? '▼' : '▲';
+            });
+            
+            // Add initial welcome message
+            addMessage('Welcome to GlassRain! How can I help with your home today?', 'ai');
+            
+            // Send message when button is clicked
+            sendBtn.addEventListener('click', function() {
+                sendMessage();
+            });
+            
+            // Send message when Enter key is pressed
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Function to send message
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+                
+                // Add user message to chat
+                addMessage(message, 'user');
+                
+                // Clear input field
+                userInput.value = '';
+                
+                // Expand chat if collapsed
+                if (!chatContainer.classList.contains('expanded')) {
+                    chatContainer.classList.add('expanded');
+                    chatContainer.querySelector('.chat-toggle').textContent = '▼';
+                }
+                
+                // Send to backend and get response
+                sendToOpenAI(message);
+            }
+            
+            // Function to add a message to the chat log
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}-message`;
+                messageDiv.textContent = text;
+                chatLog.appendChild(messageDiv);
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+            
+            // Function to send message to OpenAI via backend
+            async function sendToOpenAI(message) {
+                try {
+                    // Add thinking indicator
+                    const thinkingId = 'thinking-' + Date.now();
+                    addMessage('Thinking...', 'ai');
+                    
+                    // Get current address and property data
+                    const addressId = localStorage.getItem('currentAddressId') || '1';
+                    
+                    // Send request to backend
+                    const response = await fetch('/ask-ai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            prompt: message,
+                            address_id: addressId
+                        })
+                    });
+                    
+                    // Process response
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Remove thinking message
+                        const thinkingMsg = chatLog.lastChild;
+                        if (thinkingMsg && thinkingMsg.textContent === 'Thinking...') {
+                            chatLog.removeChild(thinkingMsg);
+                        }
+                        
+                        // Add AI response
+                        addMessage(data.response, 'ai');
+                    } else {
+                        throw new Error('Failed to get response');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    
+                    // Remove thinking message
+                    const thinkingMsg = chatLog.lastChild;
+                    if (thinkingMsg && thinkingMsg.textContent === 'Thinking...') {
+                        chatLog.removeChild(thinkingMsg);
+                    }
+                    
+                    // Add error message
+                    addMessage('Sorry, I encountered an error. Please try again later.', 'ai');
+                }
+            }
+        });
+    </script>
+    
+    <!-- User Profile Creation Modal -->
+    <div id="profile-modal" class="profile-modal">
+        <div class="profile-modal-content">
+            <h3>Complete Your Profile</h3>
+            <p>Please provide your email and create a password to save your property information.</p>
+            
+            <form id="profile-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="password-confirm">Confirm Password</label>
+                    <input type="password" id="password-confirm" required placeholder="Confirm your password">
+                </div>
+                <button type="submit" id="save-profile" class="profile-submit-btn">Save Profile</button>
+            </form>
+        </div>
+    </div>
+    
+    <style>
+        /* User Profile Modal */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        .profile-modal.show {
+            display: flex;
+        }
+        
+        .profile-modal-content {
+            background-color: var(--midnight-black);
+            border: 1px solid var(--glassrain-gold);
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .profile-modal-content h3 {
+            color: var(--glassrain-gold);
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+        
+        .profile-modal-content p {
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: rgba(46, 46, 46, 0.8);
+            border: 1px solid rgba(194, 158, 73, 0.3);
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus {
+            border-color: var(--glassrain-gold);
+            outline: none;
+        }
+        
+        .profile-submit-btn {
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+            border: none;
+            padding: 12px 0;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+        
+        .profile-submit-btn:hover {
+            background-color: #d4b05e;
+        }
+    </style>
+    
+    <script>
+        // Check if this is a new user (no profile)
+        document.addEventListener('DOMContentLoaded', function() {
+            // We'll show the profile modal after a short delay to let the dashboard load
+            const hasProfile = localStorage.getItem('userProfile');
+            
+            if (!hasProfile) {
+                // Wait for the 3D model to load before showing profile modal
+                setTimeout(function() {
+                    document.getElementById('profile-modal').classList.add('show');
+                }, 2000); // 2-second delay
+            }
+        });
+        
+        // Handle profile form submission
+        document.getElementById('profile-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password-confirm').value;
+            
+            // Validate passwords match
+            if (password !== passwordConfirm) {
+                alert('Passwords do not match. Please try again.');
+                return;
+            }
+            
+            // Save profile (normally would send to server)
+            const userProfile = {
+                email: email,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage for now (in production, would save to server)
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            
+            // Close modal
+            document.getElementById('profile-modal').classList.remove('show');
+            
+            // Send profile data to server
+            fetch('/api/verify-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Profile created successfully');
+                } else {
+                    console.error('Error creating profile:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error creating profile:', error);
+            });
+        });
+    </script>
+</body>
+</html>

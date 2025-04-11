@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - DIY</title>
+    <style>
+        /* GlassRain Color Scheme */
+        :root {
+            --glassrain-gold: #C29E49;
+            --midnight-black: #1A1A1A;
+            --rain-slate: #2E2E2E;
+            --cloud-white: #F8F8F8;
+            --mist-gray: #E5E5E5;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--cloud-white);
+            color: var(--midnight-black);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--midnight-black);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-tab {
+            padding: 8px 15px;
+            color: white;
+            text-decoration: none;
+            position: relative;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-tab:hover {
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tab.active {
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--glassrain-gold);
+        }
+
+        /* DIY Content */
+        .diy-container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .diy-header {
+            background-color: var(--rain-slate);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .diy-title {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: var(--glassrain-gold);
+        }
+
+        .diy-description {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        /* DIY Chat Section */
+        .chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .assistant-message {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .user-message .message-content {
+            background-color: var(--glassrain-gold);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .assistant-message .message-content {
+            background-color: var(--mist-gray);
+            color: var(--midnight-black);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            margin-top: 5px;
+            color: #888;
+            text-align: right;
+        }
+
+        .chat-input-container {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+
+        .media-buttons {
+            display: flex;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .media-button {
+            background-color: var(--rain-slate);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .media-button:hover {
+            background-color: var(--glassrain-gold);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--glassrain-gold);
+        }
+
+        .send-button {
+            background-color: var(--glassrain-gold);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .send-button:hover {
+            background-color: #d4b05e;
+        }
+
+        /* Project Categories */
+        .categories-section {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--glassrain-gold);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .category-icon {
+            background-color: var(--rain-slate);
+            color: var(--glassrain-gold);
+            font-size: 32px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-content {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .category-description {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Voice Recording Animation */
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .recording-indicator.active {
+            display: flex;
+        }
+
+        .pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #f44336;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+            }
+            
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+            }
+            
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">GlassRain</div>
+        <nav class="nav-tabs">
+            <a href="/dashboard" class="nav-tab">Home</a>
+            <a href="/elevate" class="nav-tab">Elevate</a>
+            <a href="/services" class="nav-tab">Services</a>
+            <a href="/diy" class="nav-tab active">DIY</a>
+            <a href="/settings" class="nav-tab">Account</a>
+        </nav>
+    </header>
+
+    <div class="diy-container">
+        <div class="diy-header">
+            <h1 class="diy-title">DIY Project Assistant</h1>
+            <p class="diy-description">Get expert guidance on your home improvement projects with our AI-powered DIY assistant.</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message assistant-message">
+                    <div class="message-content">
+                        <p>Hi there! I'm your DIY project assistant. How can I help with your home improvement project today?</p>
+                        <div class="message-time">Today, 10:00 AM</div>
+                    </div>
+                </div>
+                <!-- Chat messages will be added here dynamically -->
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="recording-indicator" id="recordingIndicator">
+                    <div class="pulse"></div>
+                    <span>Recording audio...</span>
+                </div>
+                
+                <div class="media-buttons">
+                    <button class="media-button" id="voiceButton" title="Voice recording">🎤</button>
+                    <button class="media-button" id="photoButton" title="Upload photo">📷</button>
+                    <button class="media-button" id="videoButton" title="Upload video">🎥</button>
+                    <button class="media-button" id="exportButton" title="Export DIY Plan">💾</button>
+                    <input type="file" id="photoInput" style="display: none" accept="image/*">
+                    <input type="file" id="videoInput" style="display: none" accept="video/*">
+                </div>
+                
+                <div class="input-group">
+                    <input type="text" class="chat-input" id="messageInput" placeholder="Type your message here...">
+                    <button class="send-button" id="sendButton">➤</button>
+                </div>
+                
+                <div id="export-panel" style="display: none; background-color: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h3 style="margin-bottom: 10px; color: #333;">Export DIY Plan</h3>
+                    <div style="display: flex; margin-bottom: 10px;">
+                        <input type="text" id="planNameInput" placeholder="Enter a name for your DIY plan" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="savePlanBtn" style="flex: 1; background-color: var(--glassrain-gold); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Save Plan</button>
+                        <button id="exportPdfBtn" style="flex: 1; background-color: #444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Export as PDF</button>
+                        <button id="cancelExportBtn" style="flex: 1; background-color: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="categories-section">
+            <h2 class="section-title">Browse Project Categories</h2>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <div class="category-icon">🔨</div>
+                    <div class="category-content">
+                        <h3 class="category-title">Woodworking</h3>
+                        <p class="category-description">Furniture, shelving, and decorative items</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-icon">🎨</div>
+                    <div class="category-content">
+                        <h3 class="category-title">Painting & Finishing</h3>
+                        <p class="category-description">Interior and exterior painting techniques</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-icon">🔌</div>
+                    <div class="category-content">
+                        <h3 class="category-title">Basic Electrical</h3>
+                        <p class="category-description">Light fixtures, switches, and simple wiring</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-icon">🚿</div>
+                    <div class="category-content">
+                        <h3 class="category-title">Plumbing Basics</h3>
+                        <p class="category-description">Faucets, toilets, and minor repairs</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-icon">🧱</div>
+                    <div class="category-content">
+                        <h3 class="category-title">Tiling & Flooring</h3>
+                        <p class="category-description">Bathroom, kitchen, and floor tile installation</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-icon">🌿</div>
+                    <div class="category-content">
+                        <h3 class="category-title">Gardening & Landscaping</h3>
+                        <p class="category-description">Garden beds, patios, and outdoor spaces</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-icon">🛠️</div>
+                    <div class="category-content">
+                        <h3 class="category-title">Home Repair</h3>
+                        <p class="category-description">Drywall, doors, windows, and general fixes</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-icon">🏠</div>
+                    <div class="category-content">
+                        <h3 class="category-title">Home Decor</h3>
+                        <p class="category-description">Custom decor items and upcycling projects</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const voiceButton = document.getElementById('voiceButton');
+        const photoButton = document.getElementById('photoButton');
+        const videoButton = document.getElementById('videoButton');
+        const exportButton = document.getElementById('exportButton');
+        const exportPanel = document.getElementById('export-panel');
+        const planNameInput = document.getElementById('planNameInput');
+        const savePlanBtn = document.getElementById('savePlanBtn');
+        const exportPdfBtn = document.getElementById('exportPdfBtn');
+        const cancelExportBtn = document.getElementById('cancelExportBtn');
+        const photoInput = document.getElementById('photoInput');
+        const videoInput = document.getElementById('videoInput');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        
+        // Variables
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        
+        // Event Listeners
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        voiceButton.addEventListener('click', toggleVoiceRecording);
+        photoButton.addEventListener('click', () => photoInput.click());
+        videoButton.addEventListener('click', () => videoInput.click());
+        exportButton.addEventListener('click', toggleExportPanel);
+        
+        savePlanBtn.addEventListener('click', saveDIYPlan);
+        exportPdfBtn.addEventListener('click', exportDIYPlanAsPDF);
+        cancelExportBtn.addEventListener('click', () => exportPanel.style.display = 'none');
+        
+        photoInput.addEventListener('change', handlePhotoUpload);
+        videoInput.addEventListener('change', handleVideoUpload);
+        
+        // Function to send a message
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') return;
+            
+            // Add message to chat
+            addUserMessage(message);
+            
+            // Clear input
+            messageInput.value = '';
+            
+            // Simulate AI response
+            setTimeout(() => {
+                const responses = [
+                    "That's a great DIY project idea! Here are some steps to get started...",
+                    "For that home improvement task, you'll need: hammer, nails, wood glue, and measuring tape.",
+                    "I'd recommend watching a tutorial before attempting this project. Safety is important!",
+                    "That's a common issue with older homes. Here's how you can fix it yourself...",
+                    "For that painting project, make sure to properly prep the surface first!"
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addAssistantMessage(randomResponse);
+            }, 1000);
+        }
+        
+        // Add user message to chat
+        function addUserMessage(text) {
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <p>${text}</p>
+                    <div class="message-time">Today, ${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Add assistant message to chat
+        function addAssistantMessage(text) {
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant-message';
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <p>${text}</p>
+                    <div class="message-time">Today, ${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Voice recording functionality
+        function toggleVoiceRecording() {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+        
+        function startRecording() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorder.ondataavailable = e => {
+                            audioChunks.push(e.data);
+                        };
+                        
+                        mediaRecorder.onstop = processRecording;
+                        
+                        audioChunks = [];
+                        mediaRecorder.start();
+                        isRecording = true;
+                        
+                        // Update UI
+                        recordingIndicator.classList.add('active');
+                        voiceButton.style.backgroundColor = '#f44336';
+                    })
+                    .catch(err => {
+                        console.error("Error accessing microphone:", err);
+                        alert("Could not access your microphone. Please check permissions.");
+                    });
+            } else {
+                alert("Your browser doesn't support audio recording.");
+            }
+        }
+        
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                
+                // Update UI
+                recordingIndicator.classList.remove('active');
+                voiceButton.style.backgroundColor = '';
+            }
+        }
+        
+        function processRecording() {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // Display audio in chat
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <p>🎤 Audio message</p>
+                    <audio controls src="${audioUrl}"></audio>
+                    <div class="message-time">Today, ${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Simulate AI response
+            setTimeout(() => {
+                addAssistantMessage("I've processed your audio message. Let me help you with that DIY question...");
+            }, 1500);
+        }
+        
+        // Handle photo upload
+        function handlePhotoUpload(e) {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const url = URL.createObjectURL(file);
+                
+                // Display image in chat
+                const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <p>📷 Photo</p>
+                        <img src="${url}" style="max-width: 100%; max-height: 200px; margin-top: 10px;">
+                        <div class="message-time">Today, ${time}</div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    addAssistantMessage("I can see the photo you've shared. Based on what I'm seeing, here are some recommendations for your project...");
+                }, 1500);
+            }
+        }
+        
+        // Handle video upload
+        function handleVideoUpload(e) {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const url = URL.createObjectURL(file);
+                
+                // Display video in chat
+                const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <p>🎥 Video</p>
+                        <video controls style="max-width: 100%; max-height: 200px; margin-top: 10px;">
+                            <source src="${url}" type="${file.type}">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="message-time">Today, ${time}</div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    addAssistantMessage("Thanks for sharing this video. Let me analyze the issue you're showing and provide some guidance...");
+                }, 1500);
+            }
+        }
+        
+        // Export Functionality
+        function toggleExportPanel() {
+            if (exportPanel.style.display === 'none' || !exportPanel.style.display) {
+                exportPanel.style.display = 'block';
+                planNameInput.focus();
+            } else {
+                exportPanel.style.display = 'none';
+            }
+        }
+        
+        function saveDIYPlan() {
+            const planName = planNameInput.value.trim();
+            if (!planName) {
+                alert('Please enter a name for your DIY plan');
+                return;
+            }
+            
+            // Get all chat messages
+            const messages = [];
+            chatMessages.querySelectorAll('.message').forEach(msg => {
+                const content = msg.querySelector('p').textContent;
+                const isUser = msg.classList.contains('user-message');
+                messages.push({
+                    text: content,
+                    sender: isUser ? 'user' : 'assistant',
+                    timestamp: new Date().toISOString()
+                });
+            });
+            
+            // Create plan object
+            const diyPlan = {
+                name: planName,
+                created: new Date().toISOString(),
+                messages: messages
+            };
+            
+            // Save to localStorage
+            const savedPlans = JSON.parse(localStorage.getItem('diyPlans') || '[]');
+            savedPlans.push(diyPlan);
+            localStorage.setItem('diyPlans', JSON.stringify(savedPlans));
+            
+            // Hide export panel
+            exportPanel.style.display = 'none';
+            planNameInput.value = '';
+            
+            // Show success message
+            addAssistantMessage(`Your DIY plan "${planName}" has been saved successfully. You can access it from the Settings > Saved DIY Plans menu.`);
+        }
+        
+        function exportDIYPlanAsPDF() {
+            const planName = planNameInput.value.trim() || 'DIY Plan';
+            
+            // Create a printable version of the chat
+            const printContent = document.createElement('div');
+            printContent.innerHTML = `
+                <h1 style="text-align: center; margin-bottom: 20px;">GlassRain DIY Plan: ${planName}</h1>
+                <p style="text-align: center; margin-bottom: 30px;">Created on ${new Date().toLocaleDateString()}</p>
+            `;
+            
+            // Add all messages
+            chatMessages.querySelectorAll('.message').forEach(msg => {
+                const content = msg.querySelector('p').textContent;
+                const isUser = msg.classList.contains('user-message');
+                const sender = isUser ? 'You' : 'GlassRain Assistant';
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.style.margin = '10px 0';
+                messageDiv.style.padding = '10px';
+                messageDiv.style.borderRadius = '5px';
+                messageDiv.style.background = isUser ? '#f0f0f0' : '#e9f5ff';
+                
+                messageDiv.innerHTML = `
+                    <strong>${sender}:</strong>
+                    <p>${content}</p>
+                `;
+                
+                printContent.appendChild(messageDiv);
+            });
+            
+            // Create materials list if available
+            const materialsHeader = document.createElement('h2');
+            materialsHeader.textContent = 'Materials & Tools';
+            materialsHeader.style.marginTop = '30px';
+            printContent.appendChild(materialsHeader);
+            
+            const materialsList = document.createElement('ul');
+            // Extract materials from assistant messages (simplified logic)
+            let toolsExtracted = false;
+            chatMessages.querySelectorAll('.assistant-message').forEach(msg => {
+                const content = msg.querySelector('p').textContent;
+                if (content.includes("you'll need:")) {
+                    const materials = content.split("you'll need:")[1].trim();
+                    const items = materials.split(',');
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item.trim();
+                        materialsList.appendChild(li);
+                    });
+                    toolsExtracted = true;
+                }
+            });
+            
+            if (!toolsExtracted) {
+                materialsList.innerHTML = '<li>No specific materials list available. Review chat for details.</li>';
+            }
+            
+            printContent.appendChild(materialsList);
+            
+            // Create steps section
+            const stepsHeader = document.createElement('h2');
+            stepsHeader.textContent = 'Project Steps';
+            stepsHeader.style.marginTop = '30px';
+            printContent.appendChild(stepsHeader);
+            
+            const stepsList = document.createElement('ol');
+            // Simplified logic to extract steps
+            let stepsAdded = false;
+            chatMessages.querySelectorAll('.assistant-message').forEach(msg => {
+                const content = msg.querySelector('p').textContent;
+                if (content.includes("steps to") || content.includes("Here's how")) {
+                    const li = document.createElement('li');
+                    li.textContent = content;
+                    stepsList.appendChild(li);
+                    stepsAdded = true;
+                }
+            });
+            
+            if (!stepsAdded) {
+                stepsList.innerHTML = '<li>Follow the conversation in the chat for detailed steps.</li>';
+            }
+            
+            printContent.appendChild(stepsList);
+            
+            // Open print dialog
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${planName} - GlassRain DIY Plan</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
+                        h1 { color: #333; }
+                        h2 { color: #444; margin-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.innerHTML}
+                    <div style="margin-top: 40px; text-align: center; color: #777;">
+                        <p>Generated by GlassRain DIY Assistant</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+            
+            // Hide export panel
+            exportPanel.style.display = 'none';
+            planNameInput.value = '';
+        }
+        
+        // Category cards functionality
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.querySelector('.category-title').textContent;
+                messageInput.value = `I need help with a ${category} project`;
+                messageInput.focus();
+            });
+        });
+    </script>
+</body>
+</html>

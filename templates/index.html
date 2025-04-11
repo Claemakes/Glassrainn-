@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Home Improvement Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #CFA43B;
+            --primary-gold-hover: #E6C878;
+            --accent-blue: #67B7D1;
+            --deep-charcoal: #1F1F1F;
+            --soft-gray: #F2F2F2;
+            --off-white: #FCFCFC;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: var(--deep-charcoal);
+            background-color: var(--off-white);
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--deep-charcoal) 0%, #333333 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><path d="M54 22.5H38.5V7H54V22.5ZM21.5 7H37V22.5H21.5V7ZM21.5 24.5H37V40H21.5V24.5ZM38.5 24.5H54V40H38.5V24.5ZM5 24.5H20.5V40H5V24.5ZM5 7H20.5V22.5H5V7ZM5 42H20.5V57.5H5V42ZM21.5 42H37V57.5H21.5V42ZM38.5 42H54V57.5H38.5V42Z" opacity="0.03" fill="%23CFA43B"/></svg>') repeat;
+            opacity: 0.7;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-gold) 0%, rgba(207, 164, 59, 0) 50%);
+            opacity: 0.2;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-top-color: var(--primary-gold);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-gold);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-gold-hover);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid white;
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: white;
+            color: var(--primary-gold);
+            transform: translateY(-1px);
+        }
+        
+        .feature-icon {
+            background-color: rgba(207, 164, 59, 0.1);
+            color: var(--primary-gold);
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-gold-hover) 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold" style="color: var(--primary-gold);">GlassRain</h1>
+            <nav>
+                <a href="/address-entry" class="btn-primary py-2 px-6 rounded-lg font-medium shadow-md hover:shadow-lg transition-all">Get Started</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero py-20 md:py-32 text-white relative">
+        <div class="hero-overlay"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">Transform Your Home<br>Improvement Experience</h2>
+            <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 opacity-90">GlassRain connects homeowners with services, products, and AI-powered tools to manage and improve your home.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="/address-entry" class="btn-primary font-semibold py-3 px-8 rounded-lg shadow-md text-lg">Enter Your Address</a>
+                <a href="/dashboard" class="btn-secondary font-semibold py-3 px-8 rounded-lg text-lg">Explore Dashboard</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-16" style="color: var(--deep-charcoal);">Everything You Need in One Platform</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="card p-8">
+                    <div class="w-14 h-14 feature-icon rounded-lg flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--deep-charcoal);">3D Property Model</h3>
+                    <p class="text-gray-600">Visualize your home in 3D and plan improvements with precision and confidence.</p>
+                </div>
+                
+                <div class="card p-8">
+                    <div class="w-14 h-14 feature-icon rounded-lg flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--deep-charcoal);">Service Booking</h3>
+                    <p class="text-gray-600">Connect with trusted professionals for all your home service needs.</p>
+                </div>
+                
+                <div class="card p-8">
+                    <div class="w-14 h-14 feature-icon rounded-lg flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--deep-charcoal);">Product Shopping</h3>
+                    <p class="text-gray-600">Shop for home improvement products with personalized recommendations.</p>
+                </div>
+                
+                <div class="card p-8">
+                    <div class="w-14 h-14 feature-icon rounded-lg flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--deep-charcoal);">AI-Powered DIY</h3>
+                    <p class="text-gray-600">Access AI guides for DIY projects with step-by-step instructions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AR Visualization Section -->
+    <section class="py-20 bg-gray-50" style="background-color: var(--soft-gray);">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-12 md:mb-0 md:pr-12">
+                    <h2 class="text-3xl font-bold mb-6" style="color: var(--deep-charcoal);">Visualize Before You Buy</h2>
+                    <p class="text-lg text-gray-600 mb-8">Our AR visualization tools let you see how new furniture, fixtures, and renovations will look in your home before making a purchase.</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-4" style="background-color: rgba(207, 164, 59, 0.15); color: var(--primary-gold);">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <span class="font-medium">Place virtual furniture in your home</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-4" style="background-color: rgba(207, 164, 59, 0.15); color: var(--primary-gold);">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <span class="font-medium">Preview paint colors on your walls</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-4" style="background-color: rgba(207, 164, 59, 0.15); color: var(--primary-gold);">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <span class="font-medium">Visualize renovation projects</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="md:w-1/2">
+                    <div class="bg-white rounded-xl shadow-lg p-8 relative" style="background: linear-gradient(135deg, rgba(103, 183, 209, 0.05) 0%, rgba(103, 183, 209, 0.1) 100%);">
+                        <div class="relative rounded-lg overflow-hidden shadow-inner h-80 bg-white">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center" style="background-color: rgba(207, 164, 59, 0.1);">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" style="color: var(--primary-gold);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3l5 5 5-5m0 6l-5 5-5-5m0 6l5 5 5-5" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-lg font-medium" style="color: var(--deep-charcoal);">AR Visualization Preview</p>
+                                    <p class="text-sm text-gray-500 mt-2">Experience virtual product placement in your own home</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-full" style="background: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-gold-hover) 100%); opacity: 0.6;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section py-20 text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-6">Ready to Transform Your Home?</h2>
+            <p class="text-xl max-w-2xl mx-auto mb-10 opacity-90">Join thousands of homeowners who trust GlassRain for their home improvement needs.</p>
+            <a href="/address-entry" class="bg-white font-bold py-4 px-10 rounded-lg shadow-lg inline-block transition-transform hover:transform hover:scale-105" style="color: var(--primary-gold);">Get Started Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16" style="background-color: var(--deep-charcoal);">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <h3 class="text-xl font-bold mb-4" style="color: var(--primary-gold);">GlassRain</h3>
+                    <p class="text-gray-400">Transforming home improvement with technology and connectivity.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Features</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">3D Property Modeling</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Service Booking</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Product Shopping</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">AR Visualization</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Partners</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
+                <p>&copy; 2025 GlassRain. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Account Settings</title>
+    <style>
+        /* Global Styles */
+        :root {
+            --glass-gold: #C29E49;
+            --glass-gold-light: #D9B567;
+            --midnight-black: #1A1A1A;
+            --rain-slate: #2E2E2E;
+            --light-gray: #F5F5F5;
+            --medium-gray: #E0E0E0;
+            --dark-gray: #707070;
+            --success-green: #4CAF50;
+            --error-red: #F44336;
+            --white: #FFFFFF;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--midnight-black);
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 500;
+            color: var(--midnight-black);
+            margin: 0;
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background-color: var(--midnight-black);
+            border-radius: 8px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+        
+        .tab-nav-item {
+            padding: 16px 24px;
+            color: var(--white);
+            text-decoration: none;
+            transition: background-color 0.2s;
+            font-weight: 500;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .tab-nav-item.active {
+            background-color: var(--rain-slate);
+            color: var(--glass-gold);
+            border-bottom: 3px solid var(--glass-gold);
+        }
+        
+        /* Settings Container */
+        .settings-container {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .settings-sidebar {
+            width: 280px;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .settings-content {
+            flex: 1;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        
+        /* Sidebar Menu */
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--medium-gray);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .sidebar-menu-item.active {
+            background-color: var(--light-gray);
+            border-left: 4px solid var(--glass-gold);
+            font-weight: 500;
+        }
+        
+        .sidebar-menu-item:hover:not(.active) {
+            background-color: rgba(242,242,242,0.5);
+        }
+        
+        /* Settings Sections */
+        .settings-section {
+            display: none;
+        }
+        
+        .settings-section.active {
+            display: block;
+        }
+        
+        .settings-section h2 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--glass-gold);
+            outline: none;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--medium-gray);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--glass-gold);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Payment Method Cards */
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .payment-card {
+            border: 1px solid var(--medium-gray);
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+        }
+        
+        .payment-card.default {
+            border-color: var(--glass-gold);
+            box-shadow: 0 0 0 1px var(--glass-gold);
+        }
+        
+        .payment-card.default:before {
+            content: "Default";
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background-color: var(--glass-gold);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .card-logo {
+            width: 40px;
+            height: 40px;
+            background-color: var(--medium-gray);
+            border-radius: 4px;
+            margin-right: 12px;
+        }
+        
+        .card-number {
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+        
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--glass-gold);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--glass-gold-light);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--midnight-black);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--medium-gray);
+        }
+        
+        .btn-danger {
+            background-color: var(--error-red);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-link {
+            background: none;
+            color: var(--glass-gold);
+            padding: 0;
+            font-weight: 500;
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .settings-container {
+                flex-direction: column;
+            }
+            
+            .settings-sidebar {
+                width: 100%;
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Account Settings</h1>
+        </div>
+        
+        <div class="tab-navigation">
+            <a href="/dashboard" class="tab-nav-item">Home</a>
+            <a href="/elevate" class="tab-nav-item">Elevate</a>
+            <a href="/services" class="tab-nav-item">Services</a>
+            <a href="/diy" class="tab-nav-item">DIY</a>
+            <a href="/settings" class="tab-nav-item active">Account</a>
+        </div>
+        
+        <div class="settings-container">
+            <div class="settings-sidebar">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item active" data-section="profile">Profile</li>
+                    <li class="sidebar-menu-item" data-section="security">Security</li>
+                    <li class="sidebar-menu-item" data-section="notifications">Notifications</li>
+                    <li class="sidebar-menu-item" data-section="payment">Payment Methods</li>
+                    <li class="sidebar-menu-item" data-section="retailers">Retailer Connections</li>
+                    <li class="sidebar-menu-item" data-section="projects">Project History</li>
+                </ul>
+            </div>
+            
+            <div class="settings-content">
+                <!-- Profile Section -->
+                <div class="settings-section active" id="profile-section">
+                    <h2>Profile Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" class="form-control" value="John Doe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" value="john.doe@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" value="(555) 123-4567">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timezone">Timezone</label>
+                        <select id="timezone" class="form-control">
+                            <option selected>America/New_York</option>
+                            <option>America/Chicago</option>
+                            <option>America/Denver</option>
+                            <option>America/Los_Angeles</option>
+                            <option>Pacific/Honolulu</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary">Save Changes</button>
+                </div>
+                
+                <!-- Security Section -->
+                <div class="settings-section" id="security-section">
+                    <h2>Security Settings</h2>
+                    
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" id="confirm-password" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Two-Factor Authentication</label>
+                        <div style="display: flex; align-items: center;">
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="margin-left: 12px;">Enable 2FA for enhanced security</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary">Update Password</button>
+                </div>
+                
+                <!-- Notifications Section -->
+                <div class="settings-section" id="notifications-section">
+                    <h2>Notification Preferences</h2>
+                    
+                    <div class="form-group">
+                        <label>Email Notifications</label>
+                        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="margin-left: 12px;">Service updates and offers</span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="margin-left: 12px;">Contractor communication</span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="margin-left: 12px;">Product recommendations</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>SMS Notifications</label>
+                        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="margin-left: 12px;">Appointment reminders</span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="margin-left: 12px;">Special offers</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary">Save Preferences</button>
+                </div>
+                
+                <!-- Payment Methods Section -->
+                <div class="settings-section" id="payment-section">
+                    <h2>Payment Methods</h2>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-card default">
+                            <div class="card-header">
+                                <div class="card-logo"></div>
+                                <div>
+                                    <div style="font-weight: 500;">Visa ending in 4242</div>
+                                    <div style="color: var(--dark-gray); font-size: 14px;">Expires 05/25</div>
+                                </div>
+                            </div>
+                            <div class="card-details">
+                                <div class="card-number">xxxx xxxx xxxx 4242</div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-link">Edit</button>
+                                <button class="btn btn-link" style="color: var(--error-red);">Remove</button>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-card">
+                            <div class="card-header">
+                                <div class="card-logo"></div>
+                                <div>
+                                    <div style="font-weight: 500;">Mastercard ending in 5555</div>
+                                    <div style="color: var(--dark-gray); font-size: 14px;">Expires 03/26</div>
+                                </div>
+                            </div>
+                            <div class="card-details">
+                                <div class="card-number">xxxx xxxx xxxx 5555</div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-link">Make Default</button>
+                                <button class="btn btn-link" style="color: var(--error-red);">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary">Add Payment Method</button>
+                </div>
+                
+                <!-- Retailer Connections Section -->
+                <div class="settings-section" id="retailers-section">
+                    <h2>Retailer Connections</h2>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--medium-gray); border-radius: 8px; margin-bottom: 16px;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Amazon</div>
+                                <div style="color: var(--dark-gray); font-size: 14px;">Connected since April 2, 2025</div>
+                            </div>
+                            <div>
+                                <button class="btn btn-secondary">Disconnect</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--medium-gray); border-radius: 8px; margin-bottom: 16px;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Wayfair</div>
+                                <div style="color: var(--dark-gray); font-size: 14px;">Connected since March 15, 2025</div>
+                            </div>
+                            <div>
+                                <button class="btn btn-secondary">Disconnect</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--medium-gray); border-radius: 8px; margin-bottom: 16px;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Home Depot</div>
+                                <div style="color: var(--success-green); font-size: 14px;">Not connected</div>
+                            </div>
+                            <div>
+                                <button class="btn btn-primary">Connect</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--medium-gray); border-radius: 8px;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Lowe's</div>
+                                <div style="color: var(--success-green); font-size: 14px;">Not connected</div>
+                            </div>
+                            <div>
+                                <button class="btn btn-primary">Connect</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: var(--light-gray); padding: 16px; border-radius: 8px;">
+                        <p style="margin-top: 0;">Connecting retailer accounts allows GlassRain to recommend products and create seamless shopping experiences based on your home data. We never share your personal information without permission.</p>
+                    </div>
+                </div>
+                
+                <!-- Project History Section -->
+                <div class="settings-section" id="projects-section">
+                    <h2>Project History</h2>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <div>
+                                <strong>Timeframe:</strong>
+                            </div>
+                            <div>
+                                <select class="form-control" style="width: auto; padding: 4px 8px;">
+                                    <option>All Time</option>
+                                    <option>Last 30 Days</option>
+                                    <option>Last 3 Months</option>
+                                    <option>Last Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="border: 1px solid var(--medium-gray); border-radius: 8px; overflow: hidden;">
+                        <div style="padding: 16px; border-bottom: 1px solid var(--medium-gray); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Kitchen Renovation</div>
+                                <div style="color: var(--dark-gray); font-size: 14px;">Started: March 15, 2025</div>
+                            </div>
+                            <div>
+                                <span style="background-color: var(--success-green); color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Completed</span>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 16px; border-bottom: 1px solid var(--medium-gray); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Backyard Landscaping</div>
+                                <div style="color: var(--dark-gray); font-size: 14px;">Started: April 2, 2025</div>
+                            </div>
+                            <div>
+                                <span style="background-color: #FF9800; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">In Progress</span>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Bathroom Remodel</div>
+                                <div style="color: var(--dark-gray); font-size: 14px;">Started: February 28, 2025</div>
+                            </div>
+                            <div>
+                                <span style="background-color: var(--success-green); color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-secondary">Export Project History</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarItems = document.querySelectorAll('.sidebar-menu-item');
+            
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all items
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    document.querySelectorAll('.settings-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Show selected section
+                    const sectionId = this.getAttribute('data-section') + '-section';
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

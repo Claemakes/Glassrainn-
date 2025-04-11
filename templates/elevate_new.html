@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Elevate</title>
+    <!-- Browser compatibility layer -->
+    <script src="/static/js/browser_compatibility.js"></script>
+    <style>
+        /* GlassRain Color Scheme */
+        :root {
+            --glassrain-gold: #C29E49;
+            --midnight-black: #1A1A1A;
+            --rain-slate: #2E2E2E;
+            --cloud-white: #F8F8F8;
+            --mist-gray: #E5E5E5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--midnight-black);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background-color: var(--midnight-black);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-tab {
+            padding: 8px 2px;
+            color: white;
+            text-decoration: none;
+            position: relative;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tab.active {
+            color: var(--glassrain-gold);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--glassrain-gold);
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 60px);
+            position: relative;
+        }
+
+        /* Blueprint Floor Plan */
+        .blueprint-container {
+            width: 40%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blueprint-header {
+            margin-bottom: 20px;
+        }
+
+        .blueprint-title {
+            font-size: 24px;
+            color: var(--glassrain-gold);
+            margin-bottom: 8px;
+        }
+
+        .blueprint-subtitle {
+            font-size: 14px;
+            color: var(--mist-gray);
+        }
+
+        .blueprint-floor {
+            flex-grow: 1;
+            background-color: var(--rain-slate);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .room {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .room:hover {
+            background-color: rgba(194, 158, 73, 0.1);
+            border-color: var(--glassrain-gold);
+        }
+
+        .room.active {
+            background-color: rgba(194, 158, 73, 0.3);
+            border-color: var(--glassrain-gold);
+        }
+
+        .room[data-room="living"] {
+            width: 40%;
+            height: 35%;
+            top: 20%;
+            left: 10%;
+        }
+
+        .room[data-room="kitchen"] {
+            width: 30%;
+            height: 25%;
+            top: 20%;
+            right: 10%;
+        }
+
+        .room[data-room="bedroom1"] {
+            width: 25%;
+            height: 30%;
+            bottom: 10%;
+            left: 15%;
+        }
+
+        .room[data-room="bedroom2"] {
+            width: 20%;
+            height: 25%;
+            bottom: 10%;
+            left: 45%;
+        }
+
+        .room[data-room="bathroom"] {
+            width: 15%;
+            height: 20%;
+            bottom: 15%;
+            right: 10%;
+        }
+
+        .room-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .room-status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .room.active .room-status {
+            color: var(--glassrain-gold);
+        }
+
+        /* Elevate Tabs */
+        .elevate-tabs {
+            display: flex;
+            margin-top: 20px;
+            background-color: var(--rain-slate);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .elevate-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .elevate-tab.active {
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+        }
+
+        /* Room Visualization */
+        .room-visual-container {
+            width: 60%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .room-preview {
+            flex: 1;
+            background-color: var(--rain-slate);
+            margin: 20px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .room-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .scan-message {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .scan-button {
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* AI Assistant Chat */
+        .chat-panel {
+            background-color: var(--rain-slate);
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            margin: 0 20px;
+            margin-bottom: -10px;
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--glassrain-gold);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-right: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+            padding: 12px 16px;
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .assistant-message {
+            align-self: flex-start;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--glassrain-gold);
+        }
+
+        .send-button {
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .send-button:hover {
+            background-color: #d4b05e;
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            position: absolute;
+            bottom: 55px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 18px;
+        }
+        
+        .typing-indicator.active {
+            display: flex;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            margin: 0 2px;
+            border-radius: 50%;
+            background-color: var(--glassrain-gold);
+            display: inline-block;
+            animation: typing-dot 1.4s infinite ease-in-out both;
+        }
+        
+        .typing-indicator span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing-dot {
+            0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Quick suggestion buttons */
+        .suggestion-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .suggestion-button {
+            background-color: rgba(194, 158, 73, 0.2);
+            border: 1px solid var(--glassrain-gold);
+            border-radius: 18px;
+            padding: 8px 14px;
+            color: var(--glassrain-gold);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .suggestion-button:hover {
+            background-color: rgba(194, 158, 73, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .suggestion-button:active {
+            transform: translateY(0);
+        }
+
+        /* Saved Designs Panel */
+        .saved-designs-panel {
+            position: absolute;
+            right: -300px;
+            top: 0;
+            bottom: 0;
+            width: 300px;
+            background-color: var(--rain-slate);
+            transition: right 0.3s ease;
+            z-index: 50;
+            box-shadow: -4px 0 12px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .saved-designs-panel.open {
+            right: 0;
+        }
+
+        .saved-designs-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .saved-designs-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--glassrain-gold);
+        }
+
+        .saved-designs-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .saved-design {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .saved-design:hover {
+            transform: translateY(-2px);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .saved-design-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .saved-design-date {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+        }
+
+        .saved-design-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .design-action-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            flex: 1;
+            transition: background-color 0.2s;
+        }
+
+        .design-action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .design-action-btn.primary {
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+        }
+
+        .design-action-btn.primary:hover {
+            background-color: #d4b05e;
+        }
+
+        /* Cost and Materials Panel */
+        .cost-panel {
+            position: absolute;
+            bottom: -300px;
+            left: 40%;
+            right: 0;
+            height: 300px;
+            background-color: var(--rain-slate);
+            transition: bottom 0.3s ease;
+            z-index: 40;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
+            padding: 20px;
+            display: none;
+        }
+
+        .cost-panel.open {
+            bottom: 0;
+            display: block;
+        }
+
+        .cost-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .cost-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--glassrain-gold);
+        }
+
+        .close-cost {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .cost-content {
+            display: flex;
+            gap: 20px;
+        }
+
+        .cost-summary {
+            flex: 1;
+        }
+
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cost-table th, .cost-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cost-table th {
+            color: var(--glassrain-gold);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .cost-total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+        .cost-total-value {
+            color: var(--glassrain-gold);
+        }
+        
+        .export-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .export-pdf-btn {
+            background-color: rgba(194, 158, 73, 0.2);
+            border: 1px solid var(--glassrain-gold);
+            border-radius: 6px;
+            padding: 10px 16px;
+            color: var(--glassrain-gold);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .export-pdf-btn:hover {
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+        }
+        
+        .export-icon {
+            font-size: 18px;
+        }
+
+        .labor-estimate {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .labor-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--glassrain-gold);
+        }
+
+        .labor-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .labor-action {
+            margin-top: 15px;
+        }
+
+        .find-contractor-btn {
+            width: 100%;
+            background-color: var(--glassrain-gold);
+            color: var(--midnight-black);
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .find-contractor-btn:hover {
+            background-color: #d4b05e;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(26, 26, 26, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--glassrain-gold);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">GlassRain</div>
+        <nav class="nav-tabs">
+            <a href="/dashboard" class="nav-tab">Home</a>
+            <a href="/elevate" class="nav-tab active">Elevate</a>
+            <a href="/services" class="nav-tab">Services</a>
+            <a href="/diy" class="nav-tab">DIY</a>
+            <a href="/control" class="nav-tab">Control</a>
+            <a href="/settings" class="nav-tab">Settings</a>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Blueprint Container -->
+        <div class="blueprint-container">
+            <div class="blueprint-header">
+                <h2 class="blueprint-title">Floor Plan</h2>
+                <p class="blueprint-subtitle">Select a room to customize or scan a new room</p>
+            </div>
+            
+            <div class="blueprint-floor">
+                <!-- Room Elements -->
+                <div class="room" data-room="living">
+                    <div class="room-name">Living Room</div>
+                    <div class="room-status">Tap to select</div>
+                </div>
+                
+                <div class="room" data-room="kitchen">
+                    <div class="room-name">Kitchen</div>
+                    <div class="room-status">Tap to select</div>
+                </div>
+                
+                <div class="room" data-room="bedroom1">
+                    <div class="room-name">Bedroom 1</div>
+                    <div class="room-status">Tap to select</div>
+                </div>
+                
+                <div class="room" data-room="bedroom2">
+                    <div class="room-name">Bedroom 2</div>
+                    <div class="room-status">Tap to select</div>
+                </div>
+                
+                <div class="room" data-room="bathroom">
+                    <div class="room-name">Bathroom</div>
+                    <div class="room-status">Tap to select</div>
+                </div>
+            </div>
+            
+            <!-- Elevate Tabs -->
+            <div class="elevate-tabs">
+                <div class="elevate-tab active" data-tab="scan">AR SCAN ROOM</div>
+                <div class="elevate-tab" data-tab="created">CREATED ROOMS</div>
+                <div class="elevate-tab" data-tab="saved">SAVED DESIGNS</div>
+            </div>
+        </div>
+        
+        <!-- Room Visualization -->
+        <div class="room-visual-container">
+            <div class="room-preview">
+                <!-- Initial state shows the scan overlay -->
+                <div class="scan-overlay">
+                    <div class="scan-message">Scan your room to get personalized improvement suggestions</div>
+                    <button class="scan-button" id="scanRoomBtn">Scan Room with Camera</button>
+                </div>
+                
+                <!-- Room visualization will replace the overlay once scanning is complete -->
+                <img class="room-image" id="roomImage" style="display: none;">
+            </div>
+            
+            <!-- AI Design Assistant Chat -->
+            <div class="chat-panel">
+                <div class="chat-header">
+                    <div class="chat-title">Design Assistant</div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant-message">
+                        Hello! I'm your design assistant. Once you scan a room, I can help you visualize changes to your space. Just tell me what you'd like to modify!
+                    </div>
+                </div>
+                
+                <div class="suggestion-buttons" id="suggestionButtons">
+                    <button class="suggestion-button" data-prompt="Change wall color to">Change wall color</button>
+                    <button class="suggestion-button" data-prompt="Update flooring to">Update flooring</button>
+                    <button class="suggestion-button" data-prompt="Add accent lighting to">Add accent lighting</button>
+                    <button class="suggestion-button" data-prompt="Modernize furniture in">Modernize furniture</button>
+                    <button class="suggestion-button" data-prompt="How much would it cost to">Estimate costs</button>
+                    <button class="suggestion-button" data-prompt="Can you suggest contractors for">Find contractors</button>
+                </div>
+                
+                <div class="input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Type a design request or ask for suggestions...">
+                    <button class="send-button" id="sendMessageBtn">➤</button>
+                    <div class="typing-indicator" id="typingIndicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Saved Designs Panel (hidden by default) -->
+        <div class="saved-designs-panel" id="savedDesignsPanel">
+            <div class="saved-designs-header">
+                <h3 class="saved-designs-title">Saved Room Designs</h3>
+            </div>
+            
+            <div class="saved-designs-list">
+                <!-- Sample saved designs (will be populated dynamically) -->
+                <div class="saved-design">
+                    <div class="saved-design-name">Modern Living Room</div>
+                    <div class="saved-design-date">Created: April 5, 2025</div>
+                    <div class="saved-design-actions">
+                        <button class="design-action-btn">View</button>
+                        <button class="design-action-btn">Compare</button>
+                        <button class="design-action-btn primary">Load</button>
+                    </div>
+                </div>
+                
+                <div class="saved-design">
+                    <div class="saved-design-name">Kitchen Refresh</div>
+                    <div class="saved-design-date">Created: April 3, 2025</div>
+                    <div class="saved-design-actions">
+                        <button class="design-action-btn">View</button>
+                        <button class="design-action-btn">Compare</button>
+                        <button class="design-action-btn primary">Load</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cost and Materials Panel (hidden by default) -->
+        <div class="cost-panel" id="costPanel">
+            <div class="cost-header">
+                <h3 class="cost-title">Project Cost Estimation</h3>
+                <button class="close-cost" id="closeCostBtn">×</button>
+            </div>
+            
+            <div class="cost-content">
+                <div class="cost-summary">
+                    <table class="cost-table">
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th>Quantity</th>
+                                <th>Est. Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody id="costTableBody">
+                            <!-- Will be populated with JavaScript -->
+                        </tbody>
+                    </table>
+                    
+                    <div class="cost-total">
+                        <span>Total Materials:</span>
+                        <span class="cost-total-value" id="totalCost">$0.00</span>
+                    </div>
+                    
+                    <div class="export-actions">
+                        <button class="export-pdf-btn" id="exportPdfBtn">
+                            <span class="export-icon">📄</span> Export as PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="labor-estimate">
+                    <div class="labor-title">Labor Estimate</div>
+                    
+                    <div class="labor-item">
+                        <span>DIY Difficulty:</span>
+                        <span id="diyDifficulty">Moderate</span>
+                    </div>
+                    
+                    <div class="labor-item">
+                        <span>Time Required:</span>
+                        <span id="timeRequired">2-3 days</span>
+                    </div>
+                    
+                    <div class="labor-item">
+                        <span>Skill Level Needed:</span>
+                        <span id="skillLevel">Intermediate</span>
+                    </div>
+                    
+                    <div class="labor-item">
+                        <span>Professional Cost:</span>
+                        <span id="professionalCost">$850-$1,200</span>
+                    </div>
+                    
+                    <div class="labor-action">
+                        <button class="find-contractor-btn">Find Professional Help</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // DOM Elements
+        const rooms = document.querySelectorAll('.room');
+        const scanButton = document.getElementById('scanRoomBtn');
+        const roomImage = document.getElementById('roomImage');
+        const scanOverlay = document.querySelector('.scan-overlay');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendMessageBtn = document.getElementById('sendMessageBtn');
+        const elevateTabs = document.querySelectorAll('.elevate-tab');
+        const savedDesignsPanel = document.getElementById('savedDesignsPanel');
+        const costPanel = document.getElementById('costPanel');
+        const closeCostBtn = document.getElementById('closeCostBtn');
+        const costTableBody = document.getElementById('costTableBody');
+        const totalCost = document.getElementById('totalCost');
+        const exportPdfBtn = document.getElementById('exportPdfBtn');
+        
+        // State variables
+        let activeRoom = null;
+        let isRoomScanned = false;
+        let designChanges = [];
+        
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Room selection
+            rooms.forEach(room => {
+                room.addEventListener('click', () => {
+                    selectRoom(room);
+                });
+            });
+            
+            // Scan button
+            scanButton.addEventListener('click', scanRoom);
+            
+            // Chat functionality
+            sendMessageBtn.addEventListener('click', sendChatMessage);
+            chatInput.addEventListener('keypress', e => {
+                if (e.key === 'Enter') sendChatMessage();
+            });
+            
+            // Elevate tabs
+            elevateTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    switchTab(tab);
+                });
+            });
+            
+            // Close cost panel
+            closeCostBtn.addEventListener('click', () => {
+                costPanel.classList.remove('open');
+            });
+            
+            // Suggestion buttons
+            const suggestionButtons = document.querySelectorAll('.suggestion-button');
+            suggestionButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const promptPrefix = button.getAttribute('data-prompt');
+                    const selectedRoom = activeRoom ? 
+                        document.querySelector(`.room[data-room="${activeRoom}"] .room-name`).textContent : 
+                        'this room';
+                    
+                    // Construct a prompt based on the button and selected room
+                    let fullPrompt = `${promptPrefix} ${selectedRoom}`;
+                    
+                    // For cost estimation and contractor buttons, don't append room name
+                    if (promptPrefix.includes('cost')) {
+                        fullPrompt = `${promptPrefix} renovate ${selectedRoom}?`;
+                    } else if (promptPrefix.includes('contractors')) {
+                        fullPrompt = `${promptPrefix} renovating ${selectedRoom}?`;
+                    }
+                    
+                    // Set the chat input value to the constructed prompt
+                    chatInput.value = fullPrompt;
+                    chatInput.focus();
+                    
+                    // Optionally, send the message automatically
+                    // sendChatMessage();
+                });
+            });
+            
+            // Export PDF button
+            if (exportPdfBtn) {
+                exportPdfBtn.addEventListener('click', exportToPdf);
+            }
+        }
+        
+        // Room selection function
+        function selectRoom(room) {
+            // Remove active class from all rooms
+            rooms.forEach(r => r.classList.remove('active'));
+            
+            // Add active class to selected room
+            room.classList.add('active');
+            
+            // Update active room
+            activeRoom = room.getAttribute('data-room');
+            
+            // Update room status text
+            const statusElement = room.querySelector('.room-status');
+            if (isRoomScanned && activeRoom === room.getAttribute('data-room')) {
+                statusElement.textContent = 'Scanned';
+            } else {
+                statusElement.textContent = 'Selected';
+            }
+            
+            // Add assistant message about room selection
+            addAssistantMessage(`You've selected the ${room.querySelector('.room-name').textContent}. Would you like to scan this room or view existing designs?`);
+        }
+        
+        // Room scanning function
+        function scanRoom() {
+            // Show loading overlay
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.className = 'loading-overlay';
+            loadingOverlay.innerHTML = '<div class="loader"></div>';
+            document.body.appendChild(loadingOverlay);
+            
+            // Simulate camera access and scanning
+            setTimeout(() => {
+                // In a real implementation, this would access the camera and process the image
+                
+                // Remove loading overlay
+                document.body.removeChild(loadingOverlay);
+                
+                // Hide scan overlay and show room image
+                scanOverlay.style.display = 'none';
+                
+                // Set placeholder room image (in real implementation, this would be the camera capture)
+                roomImage.src = "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg";
+                roomImage.style.display = 'block';
+                
+                // Mark room as scanned
+                isRoomScanned = true;
+                
+                // Update room status if a room is selected
+                if (activeRoom) {
+                    document.querySelector(`.room[data-room="${activeRoom}"] .room-status`).textContent = 'Scanned';
+                }
+                
+                // Add assistant messages
+                addAssistantMessage("Room scan complete! I can see this is a living room with neutral walls, hardwood flooring, and contemporary furniture.");
+                addAssistantMessage("Would you like me to suggest improvements, or do you have specific changes in mind? For example, I could help you visualize new wall colors, flooring options, or furniture arrangements.");
+            }, 3000);
+        }
+        
+        // Send chat message function
+        function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            // Add user message to chat
+            addUserMessage(message);
+            
+            // Clear input
+            chatInput.value = '';
+            
+            // Process the message and generate a response
+            processUserMessage(message);
+        }
+        
+        // Process user message and generate AI response
+        async function processUserMessage(message) {
+            // Show typing indicator
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.classList.add('active');
+            
+            try {
+                // Get the current room state
+                const currentState = {
+                    wall_color: "#FFFFFF", // Default white
+                    floor_type: "hardwood",
+                    furniture: [],
+                    // Add more room properties as needed
+                };
+                
+                // Call OpenAI API through our backend
+                const response = await fetch("/api/ai/ask-ai", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        prompt: message,
+                        room_type: activeRoom || "living_room",
+                        current_state: currentState
+                    })
+                });
+                
+                // Hide typing indicator
+                typingIndicator.classList.remove('active');
+                
+                // Check if request was successful
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    addAssistantMessage(`Sorry, I encountered an error: ${errorData.error || "Unknown error"}`);
+                    return;
+                }
+                
+                // Parse response
+                const data = await response.json();
+                
+                // Display AI message to user
+                addAssistantMessage(data.message || "I'm processing your request...");
+                
+                // Process actions returned by AI
+                if (data.actions && data.actions.length > 0) {
+                    // Apply changes based on AI actions
+                    data.actions.forEach(action => {
+                        // Handle different action types
+                        if (action.type === "wall_color") {
+                            // Add to design changes
+                            designChanges.push({
+                                element: "Walls",
+                                change: `Changed to ${action.color_name}`,
+                                cost: estimateCost("wall_color")
+                            });
+                            
+                            // In a real implementation, this would update the 3D model or image
+                            // For demo, we'll just log the action
+                            console.log(`Changing wall color to ${action.hex}`);
+                        } 
+                        else if (action.type === "flooring") {
+                            designChanges.push({
+                                element: "Flooring",
+                                change: `Changed to ${action.material}`,
+                                cost: estimateCost("flooring", action.material)
+                            });
+                        }
+                        else if (action.type === "furniture") {
+                            designChanges.push({
+                                element: "Furniture",
+                                change: `Added ${action.item}`,
+                                cost: estimateCost("furniture")
+                            });
+                        }
+                        else if (action.type === "lighting") {
+                            designChanges.push({
+                                element: "Lighting",
+                                change: `Updated with ${action.item}`,
+                                cost: estimateCost("lighting")
+                            });
+                        }
+                    });
+                    
+                    // Show estimate button after applying changes
+                    showEstimateButton();
+                }
+                
+                // Handle cost estimation requests
+                if (message.toLowerCase().includes('cost') || message.toLowerCase().includes('estimate') || 
+                    message.toLowerCase().includes('price') || message.toLowerCase().includes('how much')) {
+                    showCostEstimation();
+                }
+                
+                // Handle save requests
+                if (message.toLowerCase().includes('save') || message.toLowerCase().includes('store') || 
+                    message.toLowerCase().includes('keep')) {
+                    // Logic to save the current design
+                    // This would store the current state to the database in a real implementation
+                    addAssistantMessage("I've saved this design to your collection. You can access it anytime from the 'SAVED DESIGNS' tab.");
+                }
+                
+            } catch (error) {
+                // Hide typing indicator
+                typingIndicator.classList.remove('active');
+                
+                console.error("Error processing message:", error);
+                addAssistantMessage("I'm sorry, there was an error processing your request. Please try again later.");
+            }
+        }
+        
+        // Estimate cost based on change type and details
+        function estimateCost(changeType, details) {
+            // Simple cost estimation
+            switch(changeType) {
+                case "wall_color":
+                    return 120; // Average cost for paint
+                case "flooring":
+                    if (details && details.toLowerCase().includes("hardwood")) {
+                        return 800;
+                    } else if (details && details.toLowerCase().includes("tile")) {
+                        return 600;
+                    } else if (details && details.toLowerCase().includes("carpet")) {
+                        return 400;
+                    }
+                    return 500; // Default flooring cost
+                case "furniture":
+                    return 350; // Average furniture piece
+                case "lighting":
+                    return 150; // Average lighting fixture
+                default:
+                    return 100; // Default cost
+            }
+        }
+        
+        // Add user message to chat
+        function addUserMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message user-message';
+            messageElement.textContent = message;
+            chatMessages.appendChild(messageElement);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Add assistant message to chat
+        function addAssistantMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message assistant-message';
+            messageElement.textContent = message;
+            chatMessages.appendChild(messageElement);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Switch between tabs
+        function switchTab(tab) {
+            // Remove active class from all tabs
+            elevateTabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            tab.classList.add('active');
+            
+            const tabName = tab.getAttribute('data-tab');
+            
+            // Handle tab-specific actions
+            if (tabName === 'saved') {
+                savedDesignsPanel.classList.add('open');
+            } else {
+                savedDesignsPanel.classList.remove('open');
+            }
+        }
+        
+        // Show estimate button after changes
+        function showEstimateButton() {
+            if (document.getElementById('estimateBtn')) return;
+            
+            const estimateBtn = document.createElement('button');
+            estimateBtn.id = 'estimateBtn';
+            estimateBtn.className = 'scan-button';
+            estimateBtn.style.position = 'absolute';
+            estimateBtn.style.bottom = '20px';
+            estimateBtn.style.right = '20px';
+            estimateBtn.textContent = 'Calculate Cost & Materials';
+            
+            estimateBtn.addEventListener('click', showCostEstimation);
+            
+            document.querySelector('.room-preview').appendChild(estimateBtn);
+        }
+        
+        // Show cost estimation panel
+        function showCostEstimation() {
+            // Populate cost table
+            costTableBody.innerHTML = '';
+            
+            designChanges.forEach(change => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${change.element}</td>
+                    <td>1 room</td>
+                    <td>$${change.cost.toFixed(2)}</td>
+                `;
+                costTableBody.appendChild(row);
+            });
+            
+            // Calculate total
+            const total = designChanges.reduce((sum, change) => sum + change.cost, 0);
+            totalCost.textContent = `$${total.toFixed(2)}`;
+            
+            // Show panel
+            costPanel.classList.add('open');
+        }
+        
+        // Export design plan to PDF
+        function exportToPdf() {
+            try {
+                // Initialize jsPDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Get room name
+                const roomName = activeRoom ? 
+                    document.querySelector(`.room[data-room="${activeRoom}"] .room-name`).textContent : 
+                    'Room';
+                
+                // Get current date
+                const currentDate = new Date().toLocaleDateString('en-US', {
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                });
+                
+                // Add header
+                doc.setFontSize(22);
+                doc.setTextColor(194, 158, 73); // Gold color
+                doc.text('GlassRain Design Plan', 105, 20, { align: 'center' });
+                
+                // Add subheader
+                doc.setFontSize(16);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`${roomName} Renovation`, 105, 30, { align: 'center' });
+                doc.text(currentDate, 105, 38, { align: 'center' });
+                
+                // Add divider
+                doc.setDrawColor(194, 158, 73);
+                doc.setLineWidth(0.5);
+                doc.line(20, 42, 190, 42);
+                
+                // Materials and costs section
+                doc.setFontSize(14);
+                doc.setTextColor(194, 158, 73);
+                doc.text('Materials & Costs', 20, 55);
+                
+                // Create table for costs
+                doc.setFontSize(12);
+                doc.setTextColor(60, 60, 60);
+                
+                // Table headers
+                doc.setFont(undefined, 'bold');
+                doc.text('Item', 25, 65);
+                doc.text('Description', 75, 65);
+                doc.text('Cost', 160, 65);
+                
+                doc.setFont(undefined, 'normal');
+                
+                // Table content
+                let yPosition = 75;
+                let totalCost = 0;
+                
+                designChanges.forEach((change, index) => {
+                    doc.text(change.element, 25, yPosition);
+                    doc.text(change.change, 75, yPosition);
+                    doc.text(`$${change.cost.toFixed(2)}`, 160, yPosition);
+                    
+                    totalCost += change.cost;
+                    yPosition += 10;
+                    
+                    // Add light divider
+                    if (index < designChanges.length - 1) {
+                        doc.setDrawColor(220, 220, 220);
+                        doc.setLineWidth(0.1);
+                        doc.line(23, yPosition - 5, 185, yPosition - 5);
+                    }
+                });
+                
+                // Total cost
+                doc.setDrawColor(194, 158, 73);
+                doc.setLineWidth(0.5);
+                doc.line(23, yPosition, 185, yPosition);
+                
+                yPosition += 10;
+                doc.setFont(undefined, 'bold');
+                doc.text('Total Materials Cost:', 75, yPosition);
+                doc.text(`$${totalCost.toFixed(2)}`, 160, yPosition);
+                
+                // Labor estimate section
+                yPosition += 20;
+                doc.setFont(undefined, 'bold');
+                doc.setFontSize(14);
+                doc.setTextColor(194, 158, 73);
+                doc.text('Labor & Professional Estimate', 20, yPosition);
+                
+                yPosition += 10;
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(12);
+                doc.setTextColor(60, 60, 60);
+                
+                const laborDetails = [
+                    { label: 'DIY Difficulty:', value: document.getElementById('diyDifficulty').textContent },
+                    { label: 'Time Required:', value: document.getElementById('timeRequired').textContent },
+                    { label: 'Skill Level Needed:', value: document.getElementById('skillLevel').textContent },
+                    { label: 'Professional Cost:', value: document.getElementById('professionalCost').textContent }
+                ];
+                
+                laborDetails.forEach(detail => {
+                    yPosition += 8;
+                    doc.setFont(undefined, 'bold');
+                    doc.text(detail.label, 25, yPosition);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(detail.value, 100, yPosition);
+                });
+                
+                // Additional notes
+                yPosition += 20;
+                doc.setFontSize(14);
+                doc.setTextColor(194, 158, 73);
+                doc.setFont(undefined, 'bold');
+                doc.text('Notes', 20, yPosition);
+                
+                yPosition += 10;
+                doc.setFontSize(12);
+                doc.setTextColor(60, 60, 60);
+                doc.setFont(undefined, 'normal');
+                doc.text('This design plan was created by GlassRain\'s AI Design Assistant.', 20, yPosition);
+                
+                yPosition += 8;
+                doc.text('Prices are estimates and may vary based on location and market conditions.', 20, yPosition);
+                
+                yPosition += 8;
+                doc.text('Contact your local contractors for accurate quotes and scheduling.', 20, yPosition);
+                
+                // Footer
+                doc.setFontSize(10);
+                doc.setTextColor(120, 120, 120);
+                doc.text('GlassRain - Intelligent Home Solutions', 105, 280, { align: 'center' });
+                doc.text(`Generated on ${currentDate}`, 105, 285, { align: 'center' });
+                
+                // Save PDF
+                doc.save(`GlassRain_${roomName.replace(/\s+/g, '')}_Design_${new Date().toISOString().split('T')[0]}.pdf`);
+                
+                // Display success message
+                addAssistantMessage("Your design plan has been exported to PDF! You can find it in your downloads folder.");
+                
+            } catch (error) {
+                console.error("Error exporting to PDF:", error);
+                addAssistantMessage("I'm sorry, there was an error creating your PDF. Please try again later.");
+            }
+        }
+        
+        // Initialize the app
+        initializeEventListeners();
+    </script>
+</body>
+</html>
