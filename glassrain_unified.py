@@ -508,10 +508,10 @@ installation', '/static/img/contractors/windowexperts.png',
 
 # Initialize database
 setup_database()
+
 def add_headers(response):
     """Add headers to allow iframe embedding and CORS"""
-        response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'response.headers['X-Frame-Options'] = 'ALLOWALL'
+    response.headers['X-Frame-Options'] = 'ALLOWALL'
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
