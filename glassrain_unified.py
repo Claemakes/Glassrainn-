@@ -44,20 +44,22 @@ def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
         # Try to get connection URL from environment variable
-        DATABASE_URL = os.environ.get("DATABASE_URL")
-        
+        database_url = os.environ.get("DATABASE_URL")
+
         # If not available, fall back to hardcoded connection
-        if not DATABASE_URL:
-            DATABASE_URL = "postgresql://glass:lcol1JTaQSXDSddMUELubDf7of0qq4e9@dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com/glassrain"
-            
-        conn = psycopg2.connect(DATABASE_URL)
+        if not database_url:
+            database_url = "postgresql://glass:lcol1JTaQSXDSddMUELubDf7of0qq4e9@dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com/glassrain"
+        else:
+            # Render often provides postgres:// instead of postgresql://
+            database_url = database_url.replace("postgres://", "postgresql://")
+
+        conn = psycopg2.connect(database_url)
         conn.autocommit = True
         logger.info("✅ Database connection successful")
         return conn
     except Exception as e:
         logger.error(f"❌ Database connection error: {str(e)}")
         return None
-
 def setup_database():
     """Setup the database tables if they don't exist"""
     try:
