@@ -1178,7 +1178,7 @@ def control():
                 conn.close()
     
     # Get property data using the same logic as the dashboard
-    property_data = {
+v    property_data = {
         'year_built': 1972,
         'square_feet': 2300,
         'bedrooms': 4,
@@ -1256,6 +1256,14 @@ def process_address():
     
     address_data = request.json
     
+    # Check for the different format from updated template
+    if 'address' in address_data:  
+        # This is from the updated template which just sends the full address string
+        # We need to geocode it to get the details   
+        full_address = address_data['address']
+        # Get geocoding from Mapbox
+        # ... additional code for this case
+    
     # Save address to database
     conn = get_db_connection()
     if not conn:
@@ -1266,14 +1274,14 @@ def process_address():
         
         # Add address
         cursor.execute("""
-            INSERT INTO addresses (
+            INSERT INTO addresses ( 
                 street, city, state, zip, country,
-                lat, lng, full_address, created_at   
+                lat, lng, full_address, created_at
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s, NOW()
             ) RETURNING id
         """, (
-            address_data.get('street', ''),
+            address_data.get('street', ''),   
             address_data.get('city', ''),
             address_data.get('state', ''),
             address_data.get('zip', ''),
@@ -1281,27 +1289,20 @@ def process_address():
             address_data.get('lat', 0),
             address_data.get('lng', 0),
             address_data.get('full_address', ''),
-        ))       
-
+        ))
         address_id = cursor.fetchone()['id']
         conn.commit()
         cursor.close()
         conn.close()
         
         return jsonify({
-            "success": True,
+            "success": True,  
             "address_id": address_id,  # Changed from "id" to "address_id"
             "message": "Address saved successfully"
         })
     except Exception as e:
         logger.error(f"Error saving address: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
-    # Check for the different format from updated template
-    if 'address' in address_data:
-        # This is from the updated template which just sends the full address string
-        # We need to geocode it to get the details
-        full_address = address_data['address']
 
         # Get geocoding from Mapbox
         mapbox_token = os.environ.get('MAPBOX_API_KEY')
