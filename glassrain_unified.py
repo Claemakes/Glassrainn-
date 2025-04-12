@@ -1256,9 +1256,9 @@ def settings():
 @app.route('/api/process-address', methods=['POST'])
 def process_address():
     """Process address data from the form, geocode using Mapbox, and save to database"""
-    if not request.json: 
+    if not request.json:
         return jsonify({"error": "No JSON data provided"}), 400
-            
+    
     address_data = request.json
 
     # Check for the different format from updated template
@@ -1293,7 +1293,7 @@ def process_address():
             address_number = feature.get('address', '')
             if address_number:
                 street = f"{address_number} {street}"
-    
+            
             city = ""
             state = ""
             country = "USA"
@@ -1309,7 +1309,7 @@ def process_address():
                     country = item.get('text', '')
                 elif item.get('id', '').startswith('postcode'):
                     postal_code = item.get('text', '')
-    
+            
             # Build standardized address_data
             coordinates = feature.get('center', [0, 0])
             address_data = {
@@ -1334,6 +1334,65 @@ def process_address():
             if field not in address_data or not address_data[field]:
                 return jsonify({"error": f"Missing required field: {field}"}), 400
             
+        # Get geocoding from Mapbox
+        mapbox_token = os.environ.get('MAPBOX_API_KEY')
+        if not mapbox_token:
+            return jsonify({"error": "Mapbox API key not configured"}), 500
+            
+    # Save address to database
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+            
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+            
+        # Add address
+        cursor.execute("""
+            INSERT INTO addresses (
+                street, city, state, zip, country,
+                lat, lng, full_address, created_at   
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, NOW()
+            ) RETURNING id
+        """, (
+            address_data['street'],
+            address_data['city'],
+            address_data['state'],
+            address_data['zip'],
+            address_data['country'],
+            address_data.get('lat', 0),
+            address_data.get('lng', 0),
+            f"{address_data['street']}, {address_data['city']}, {address_data['state']} {address_data['zip']}, {address_data['country']}",
+        ))
+                    
+        address_id = cursor.fetchone()['id']
+                    
+        # Link to user if user_id is provided
+        if 'user_id' in address_data and address_data['user_id']:
+            cursor.execute("""
+                INSERT INTO user_addresses (
+                    user_id, address_id, is_primary, created_at
+                ) VALUES (   
+                    %s, %s, true, NOW()
+                )
+            """, (
+                address_data['user_id'],
+                address_id
+            ))
+             
+        conn.commit()
+        cursor.close()
+        conn.close()
+            
+        return jsonify({
+            "success": True,
+            "address_id": address_id,
+            "message": "Address saved successfully"
+        })
+    except Exception as e:
+        logger.error(f"Error saving address: {str(e)}")
+        return jsonify({"error": str(e)}), 500            
         # Get geocoding from Mapbox
         mapbox_token = os.environ.get('MAPBOX_API_KEY')
         if not mapbox_token:
