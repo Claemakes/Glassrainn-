@@ -1118,7 +1118,8 @@ def dashboard():
 }
  
 # If we have an address ID, get property data
-if address_id:property_data = {
+if address_id:
+    property_data = {
         'year_built': 1972,
         'square_feet': 2300,
         'bedrooms': 4,
