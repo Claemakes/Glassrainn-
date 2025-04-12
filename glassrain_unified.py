@@ -43,29 +43,35 @@ app.json_encoder = DecimalEncoder
 def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
-        # Try to get connection URL from environment variable
-        database_url = os.environ.get("DATABASE_URL")
-        
-        # Log the actual value for debugging
-        logger.info(f"Original DATABASE_URL: {database_url}")
-
-        # If not available, fall back to hardcoded connection
-        if not database_url:
-            database_url = "postgresql://glass:lcol1JTaQSXDSddMUELubDf7of0qq4e9@dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com/glassrain"
-        else:
+        # First try using DATABASE_URL from environment
+        database_url = os.environ.get('DATABASE_URL')
+        if database_url:
             # Render often provides postgres:// instead of postgresql://
             database_url = database_url.replace("postgres://", "postgresql://")
+            conn = psycopg2.connect(database_url)
+        else:
+            # Fallback to hardcoded connection details
+            dbname = "glassrain"
+            user = "glass"
+            password = "lcol1JTaQSXDSddMUELubDf7of0qq4e9"
+            host = "dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com"
+            port = "5432"
+            
+            # Connect with keyword parameters
+            conn = psycopg2.connect(
+                dbname=dbname,
+                user=user,
+                password=password,
+                host=host,
+                port=port,
+                sslmode='require'
+            )
         
-        # Log the modified value
-        logger.info(f"Using database URL: {database_url[:15]}...") # Only show beginning for security
-
-        conn = psycopg2.connect(database_url)
         conn.autocommit = True
         logger.info("✅ Database connection successful")
         return conn
     except Exception as e:
         logger.error(f"❌ Database connection error: {str(e)}")
-        logger.error(f"Error type: {type(e).__name__}")
         return None
 
 def setup_database():
@@ -502,10 +508,10 @@ installation', '/static/img/contractors/windowexperts.png',
 
 # Initialize database
 setup_database()
-
 def add_headers(response):
     """Add headers to allow iframe embedding and CORS"""
-    response.headers['X-Frame-Options'] = 'ALLOWALL'
+        response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'response.headers['X-Frame-Options'] = 'ALLOWALL'
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
