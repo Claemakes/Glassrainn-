@@ -114,7 +114,7 @@ def setup_database():
                     user_id VARCHAR(100) DEFAULT 'default_user',
                     full_address TEXT NOT NULL,
                     street VARCHAR(200),
-                    city VARCHAR(100),
+                    pcity VARCHAR(100),
                     state VARCHAR(50),
                     zip VARCHAR(20),
                     country VARCHAR(50) DEFAULT 'United States',
@@ -1281,8 +1281,8 @@ def process_address():
             address_data.get('lat', 0),
             address_data.get('lng', 0),
             address_data.get('full_address', ''),
-        ))
-                
+        ))       
+
         address_id = cursor.fetchone()['id']
         conn.commit()
         cursor.close()
