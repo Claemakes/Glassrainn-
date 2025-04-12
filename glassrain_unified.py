@@ -1337,22 +1337,22 @@ def process_address():
         if not mapbox_token:
             return jsonify({"error": "Mapbox API key not configured"}), 500
             
-    # Save address to database
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"error": "Database connection failed"}), 500
-            
-            feature = geocode_data['features'][0]
-            
-            # Extract components from the context and place_name
-            context = feature.get('context', [])
-            place_name_parts = feature.get('place_name', '').split(', ')
-            
-            street = feature.get('text', '')
-            address_number = feature.get('address', '')
-            if address_number:
-                street = f"{address_number} {street}"
-                
+# Save address to database
+conn = get_db_connection()
+if not conn:
+    return jsonify({"error": "Database connection failed"}), 500
+
+# This line has too much indentation - should be at the same level as the code above
+feature = geocode_data['features'][0]
+
+# Extract components from the context and place_name
+context = feature.get('context', [])
+place_name_parts = feature.get('place_name', '').split(', ')
+
+street = feature.get('text', '')
+address_number = feature.get('address', '')
+if address_number:
+    street = f"{address_number} {street}"                
             city = ""
             state = ""
             country = "USA"
