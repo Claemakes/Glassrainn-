@@ -1564,9 +1564,9 @@ if address_number:
             "address_id": address_id,
             "message": "Address saved successfully"
         })
-    except Exception as e:
-        logger.error(f"Error saving address: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+     except Exception as e:
+         logger.error(f"Error saving address: {str(e)}")
+         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/addresses', methods=['GET'])
 def get_all_addresses():
