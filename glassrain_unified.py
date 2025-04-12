@@ -48,8 +48,7 @@ def get_db_connection():
         
         # If not available, fall back to hardcoded connection
         if not DATABASE_URL:
-            DATABASE_URL = 
-"postgresql://glass:lcol1JTaQSXDSddMUELubDf7of0qq4e9@dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com/glassrain"
+            DATABASE_URL = "postgresql://glass:lcol1JTaQSXDSddMUELubDf7of0qq4e9@dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com/glassrain"
             
         conn = psycopg2.connect(DATABASE_URL)
         conn.autocommit = True
