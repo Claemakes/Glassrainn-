@@ -43,32 +43,25 @@ app.json_encoder = DecimalEncoder
 def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
-        # First try using DATABASE_URL from environment
-        database_url = os.environ.get('DATABASE_URL')
-        if database_url:
-            # Render often provides postgres:// instead of postgresql://
-            database_url = database_url.replace("postgres://", "postgresql://")
-            logger.info(f"Using database URL: {database_url[:20]}...")
-            conn = psycopg2.connect(database_url)
-        else:
-            # Fallback to hardcoded connection details
-            dbname = "glassrain"
-            user = "glass"
-            password = "lcol1JTaQSXDSddMUELubDf7of0qq4e9"
-            host = "dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com"
-            port = "5432"
-            
-            conn = psycopg2.connect(
-                dbname=dbname,
-                user=user,
-                password=password,
-                host=host,
-                port=port,
-                sslmode='require'
-            )
-
+        # Try direct connection using hardcoded values first since the environment variable approach has issues
+        dbname = "glassrain"
+        user = "glass"
+        password = "lcol1JTaQSXDSddMUELubDf7of0qq4e9"
+        host = "dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com"
+        port = "5432"
+        
+        # Connect with keyword parameters
+        conn = psycopg2.connect(
+            dbname=dbname,
+            user=user,
+            password=password,
+            host=host,
+            port=port,
+            sslmode='require'
+        )
+        
         conn.autocommit = True
-        logger.info("✅ Database connection successful")
+        logger.info("✅ Database connection successful (using direct parameters)")
         return conn
     except Exception as e:
         logger.error(f"❌ Database connection error: {str(e)}")
@@ -1290,6 +1283,65 @@ def process_address():
                 return jsonify({"error": "Could not geocode the address"}), 400
                 
             # Get the first feature (most relevant match)
+    # Extract components from the context and place_name
+            context = feature.get('context', [])
+            place_name_parts = feature.get('place_name', '').split(', ')
+            
+            street = feature.get('text', '')
+            address_number = feature.get('address', '')
+            if address_number:
+                street = f"{address_number} {street}"
+    
+            city = ""
+            state = ""
+            country = "USA"
+            postal_code = ""
+            
+            # Extract information from context
+            for item in context:
+                if item.get('id', '').startswith('place'):
+                    city = item.get('text', '')
+                elif item.get('id', '').startswith('region'):
+                    state = item.get('text', '')
+                elif item.get('id', '').startswith('country'):
+                    country = item.get('text', '')
+                elif item.get('id', '').startswith('postcode'):
+                    postal_code = item.get('text', '')
+    
+            # Build standardized address_data
+            coordinates = feature.get('center', [0, 0])
+            address_data = {
+                'street': street,
+                'city': city,
+                'state': state,
+                'zip': postal_code,
+                'country': country,
+                'lat': coordinates[1],  # Mapbox returns [longitude, latitude]
+                'lng': coordinates[0],
+                'full_address': feature.get('place_name', full_address)
+            }
+        
+        except Exception as e:
+            logger.error(f"Error geocoding address: {str(e)}")
+            return jsonify({"error": "Failed to process address information"}), 500
+    else:
+        # This is from the original template with individual fields
+        # Validate required fields
+        required_fields = ['street', 'city', 'state', 'zip', 'country']
+        for field in required_fields:
+            if field not in address_data or not address_data[field]:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+            
+        # Get geocoding from Mapbox
+        mapbox_token = os.environ.get('MAPBOX_API_KEY')
+        if not mapbox_token:
+            return jsonify({"error": "Mapbox API key not configured"}), 500
+            
+    # Save address to database
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+            
             feature = geocode_data['features'][0]
             
             # Extract components from the context and place_name
