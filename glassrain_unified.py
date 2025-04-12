@@ -1107,6 +1107,7 @@ def dashboard():
                 conn.close()
     
     # Default property data if none is found
+    property_data = {
     'year_built': 1972,   
     'square_feet': 2300,
     'bedrooms': 4,   
