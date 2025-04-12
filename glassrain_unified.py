@@ -48,6 +48,7 @@ def get_db_connection():
         if database_url:
             # Render often provides postgres:// instead of postgresql://
             database_url = database_url.replace("postgres://", "postgresql://")
+            logger.info(f"Using database URL: {database_url[:20]}...")
             conn = psycopg2.connect(database_url)
         else:
             # Fallback to hardcoded connection details
@@ -57,7 +58,6 @@ def get_db_connection():
             host = "dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com"
             port = "5432"
             
-            # Connect with keyword parameters
             conn = psycopg2.connect(
                 dbname=dbname,
                 user=user,
@@ -66,12 +66,13 @@ def get_db_connection():
                 port=port,
                 sslmode='require'
             )
-        
+
         conn.autocommit = True
         logger.info("✅ Database connection successful")
         return conn
     except Exception as e:
         logger.error(f"❌ Database connection error: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
         return None
 
 def setup_database():
