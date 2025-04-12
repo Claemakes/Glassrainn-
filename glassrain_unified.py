@@ -1107,7 +1107,17 @@ def dashboard():
                 conn.close()
     
     # Default property data if none is found
-    property_data = {
+    'year_built': 1972,   
+    'square_feet': 2300,
+    'bedrooms': 4,   
+    'bathrooms': 2.5,
+    'estimated_value': 650000,
+    'energy_score': 72,
+    'energy_color': '#C29E49'  # GlassRain Gold
+}
+ 
+# If we have an address ID, get property data
+if address_id:property_data = {
         'year_built': 1972,
         'square_feet': 2300,
         'bedrooms': 4,
