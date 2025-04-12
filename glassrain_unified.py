@@ -470,22 +470,16 @@ installation', '/static/img/contractors/windowexperts.png',
 'https://example.com/windowexperts', 4.8, 145, 13, ARRAY['Boston', 'Somerville', 
 'Arlington'], TRUE, TRUE)
                         ''')
-            
+
             # Create indexes for frequently queried columns
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON 
-addresses(user_id)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_homes_address_id ON 
-homes(address_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_homes_address_id ON homes(address_id)')
             cur.execute('CREATE INDEX IF NOT EXISTS idx_rooms_home_id ON rooms(home_id)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_services_category_id ON 
-services(category_id)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_contractor_services_contractor_id ON 
-contractor_services(contractor_id)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_service_requests_address_id ON 
-service_requests(address_id)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_service_requests_status ON 
-service_requests(status)')
-            
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_services_category_id ON services(category_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_contractor_services_contractor_id ON contractor_services(contractor_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_service_requests_address_id ON service_requests(address_id)')   
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_service_requests_status ON service_requests(status)')
+
             # Commit all changes
             conn.commit()
             logger.info("Database setup complete")
