@@ -28,7 +28,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# JSON encoder for Decimal
+class DecimalEncoder(json.JSONEncoder):
+    # JSON encoder for Decimal
     def default(self, o):
         if isinstance(o, Decimal):
             return float(o)
