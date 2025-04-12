@@ -1190,7 +1190,7 @@ def control():
                 conn.close()
     
     # Get property data using the same logic as the dashboard
-      property_data = {
+    property_data = {
         'year_built': 1972,
         'square_feet': 2300,
         'bedrooms': 4,
