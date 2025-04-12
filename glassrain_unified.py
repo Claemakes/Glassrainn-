@@ -44,47 +44,43 @@ def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
     # Try direct connection using hardcoded values first since the environment variable approach has issues
-    dbname = "glassrain"
-    user = "glass"
-    password = "lcol1JTaQSXDSddMUELubDf7of0qq4e9"
-    host = "dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com"
-    port = "5432"
-        
-    # Connect with keyword parameters
-    conn = psycopg2.connect(
-    dbname=dbname,
-    user=user,
-    password=password,
-    host=host,
-    port=port,
-    sslmode='require'
-    )
-        
-    conn.autocommit = True
-    logger.info("✅ Database connection successful (using direct parameters)")
-    return conn
+        dbname = "glassrain"
+        user = "glass"
+        password = "lcol1JTaQSXDSddMUELubDf7of0qq4e9"
+        host = "dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com"
+        port = "5432"
+        # Connect with keyword parameters
+        conn = psycopg2.connect(
+        dbname=dbname,
+        user=user,
+        password=password,
+        host=host,
+        port=port,
+            sslmode='require'
+        )
+            conn.autocommit = True
+        logger.info("✅ Database connection successful (using direct parameters)")
+        return conn
     except Exception as e:
-    logger.error(f"❌ Database connection error: {str(e)}")
-    logger.error(f"Error type: {type(e).__name__}")
-    return None
+        logger.error(f"❌ Database connection error: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
+        return None
 
 def setup_database():
     """Setup the database tables if they don't exist"""
     try:
         logger.info("Running database setup...")
-        
-        conn = get_db_connection()
+            conn = get_db_connection()
         if conn is None:
             logger.error("Failed to connect to the database, cannot set up tables")
-            return
-
-        with conn.cursor() as cur:
-            # User accounts table
+        return
+            with conn.cursor() as cur:
+    # User accounts table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS users (
-                    user_id SERIAL PRIMARY KEY,
+        user_id SERIAL PRIMARY KEY,
                     email VARCHAR(255) UNIQUE,
-                    password_hash VARCHAR(255),
+        password_hash VARCHAR(255),
                     first_name VARCHAR(100),
                     last_name VARCHAR(100),
                     phone VARCHAR(50),
@@ -93,12 +89,11 @@ def setup_database():
                     account_status VARCHAR(20) DEFAULT 'active'
                 )
             ''')
-            
-            # User settings/preferences
+        # User settings/preferences
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS user_preferences (
                     preference_id SERIAL PRIMARY KEY,
-                    user_id INTEGER REFERENCES users(user_id),
+        user_id INTEGER REFERENCES users(user_id),
                     theme VARCHAR(20) DEFAULT 'dark',
                     notification_preferences JSONB,
                     dashboard_layout JSONB,
@@ -106,12 +101,11 @@ def setup_database():
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
-            # Addresses table
+        # Addresses table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS addresses (
                     address_id SERIAL PRIMARY KEY,
-                    user_id VARCHAR(100) DEFAULT 'default_user',
+        user_id VARCHAR(100) DEFAULT 'default_user',
                     full_address TEXT NOT NULL,
                     street VARCHAR(200),
                     pcity VARCHAR(100),
@@ -124,8 +118,7 @@ def setup_database():
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
-            # Home properties table
+        # Home properties table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS homes (
                     home_id SERIAL PRIMARY KEY,
@@ -151,8 +144,7 @@ def setup_database():
                     model_data JSONB
                 )
             ''')
-            
-            # 3D model elements
+        # 3D model elements
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS home_model_elements (
                     element_id SERIAL PRIMARY KEY,
@@ -165,8 +157,7 @@ def setup_database():
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
-            # Room types reference table
+        # Room types reference table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS room_types (
                     room_type_id SERIAL PRIMARY KEY,
@@ -175,8 +166,7 @@ def setup_database():
                     icon VARCHAR(50)
                 )
             ''')
-            
-            # Rooms table
+        # Rooms table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS rooms (
                     room_id SERIAL PRIMARY KEY,
@@ -196,8 +186,7 @@ def setup_database():
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
-            # Room scans table
+        # Room scans table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS room_scans (
                     scan_id SERIAL PRIMARY KEY,
@@ -209,8 +198,7 @@ def setup_database():
                     scan_image_url TEXT
                 )
             ''')
-            
-            # Design projects table
+        # Design projects table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS design_projects (
                     project_id SERIAL PRIMARY KEY,
@@ -227,8 +215,7 @@ def setup_database():
                     ai_recommendations JSONB
                 )
             ''')
-            
-            # Design chat history
+        # Design chat history
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS design_chat_messages (
                     message_id SERIAL PRIMARY KEY,
@@ -241,8 +228,7 @@ def setup_database():
                     metadata JSONB
                 )
             ''')
-            
-            # Service categories
+        # Service categories
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS service_categories (
                     category_id SERIAL PRIMARY KEY,
@@ -251,8 +237,7 @@ def setup_database():
                     icon VARCHAR(100)
                 )
             ''')
-            
-            # Services table
+        # Services table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS services (
                     service_id SERIAL PRIMARY KEY,
@@ -265,8 +250,7 @@ def setup_database():
                     image_url TEXT
                 )
             ''')
-            
-            # Service tiers table
+        # Service tiers table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS service_tiers (
                     tier_id SERIAL PRIMARY KEY,
@@ -275,8 +259,7 @@ def setup_database():
                     price_multiplier DECIMAL(3, 2) NOT NULL
                 )
             ''')
-            
-            # Contractors table
+        # Contractors table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS contractors (
                     contractor_id SERIAL PRIMARY KEY,
@@ -295,8 +278,7 @@ def setup_database():
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
-            # Contractor services mapping
+        # Contractor services mapping
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS contractor_services (
                     id SERIAL PRIMARY KEY,
@@ -307,12 +289,11 @@ def setup_database():
                     UNIQUE (contractor_id, service_id)
                 )
             ''')
-            
-            # Service requests/quotes table
+        # Service requests/quotes table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS service_requests (
                     request_id SERIAL PRIMARY KEY,
-                    user_id VARCHAR(100) DEFAULT 'default_user',
+        user_id VARCHAR(100) DEFAULT 'default_user',
                     address_id INTEGER REFERENCES addresses(address_id),
                     service_id INTEGER REFERENCES services(service_id),
                     tier_id INTEGER REFERENCES service_tiers(tier_id),
@@ -329,12 +310,11 @@ def setup_database():
                     customer_review TEXT
                 )
             ''')
-            
-            # DIY projects table
+        # DIY projects table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS diy_projects (
                     project_id SERIAL PRIMARY KEY,
-                    user_id VARCHAR(100) DEFAULT 'default_user',
+        user_id VARCHAR(100) DEFAULT 'default_user',
                     room_id INTEGER REFERENCES rooms(room_id),
                     title VARCHAR(200),
                     description TEXT,
@@ -348,12 +328,11 @@ def setup_database():
                     status VARCHAR(50) DEFAULT 'planned'
                 )
             ''')
-            
-            # DIY chat history
+        # DIY chat history
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS diy_chat_messages (
                     message_id SERIAL PRIMARY KEY,
-                    user_id VARCHAR(100) DEFAULT 'default_user',
+        user_id VARCHAR(100) DEFAULT 'default_user',
                     project_id INTEGER REFERENCES diy_projects(project_id),
                     sender VARCHAR(50), -- 'user' or 'assistant'
                     message TEXT,
@@ -363,8 +342,7 @@ def setup_database():
                     metadata JSONB
                 )
             ''')
-            
-            # Weather data cache
+        # Weather data cache
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS weather_data (
                     id SERIAL PRIMARY KEY,
@@ -374,15 +352,14 @@ def setup_database():
                     retrieved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
-            # Insert sample data only if tables are empty
+        # Insert sample data only if tables are empty
             for table in ['service_categories', 'service_tiers', 'room_types', 
 'contractors']:
                 cur.execute(f"SELECT COUNT(*) FROM {table}")
                 count = cur.fetchone()[0]
                 if count == 0:
                     if table == 'service_categories':
-                        # Service categories
+    # Service categories
                         cur.execute('''
                             INSERT INTO service_categories (name, description, icon)
                             VALUES 
@@ -405,7 +382,7 @@ services', 'thermometer'),
 repair', 'squareframe')
                         ''')
                     elif table == 'service_tiers':
-                        # Service tiers
+    # Service tiers
                         cur.execute('''
                             INSERT INTO service_tiers (name, description, price_multiplier)
                             VALUES 
@@ -417,7 +394,7 @@ features', 1.5),
 2.0)
                         ''')
                     elif table == 'room_types':
-                        # Room types
+    # Room types
                         cur.execute('''
                             INSERT INTO room_types (name, description, icon)
                             VALUES 
@@ -437,7 +414,7 @@ features', 1.5),
                                 ('Entryway', 'Main entrance to the home', 'door')
                         ''')
                     elif table == 'contractors':
-                        # Sample contractors
+    # Sample contractors
                         cur.execute('''
                             INSERT INTO contractors (name, description, logo_url, 
 website_url, rating, review_count, years_experience, service_areas, insurance_verified, 
@@ -480,8 +457,7 @@ installation', '/static/img/contractors/windowexperts.png',
 'https://example.com/windowexperts', 4.8, 145, 13, ARRAY['Boston', 'Somerville', 
 'Arlington'], TRUE, TRUE)
                         ''')
-
-            # Create indexes for frequently queried columns
+        # Create indexes for frequently queried columns
             cur.execute('CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id)')
             cur.execute('CREATE INDEX IF NOT EXISTS idx_homes_address_id ON homes(address_id)')
             cur.execute('CREATE INDEX IF NOT EXISTS idx_rooms_home_id ON rooms(home_id)')
@@ -489,9 +465,8 @@ installation', '/static/img/contractors/windowexperts.png',
             cur.execute('CREATE INDEX IF NOT EXISTS idx_contractor_services_contractor_id ON contractor_services(contractor_id)')
             cur.execute('CREATE INDEX IF NOT EXISTS idx_service_requests_address_id ON service_requests(address_id)')   
             cur.execute('CREATE INDEX IF NOT EXISTS idx_service_requests_status ON service_requests(status)')
-
-            # Commit all changes
-            conn.commit()
+        # Commit all changes
+        conn.commit()
             logger.info("Database setup complete")
     except Exception as e:
         logger.error(f"Error setting up database: {str(e)}")
@@ -564,7 +539,6 @@ def get_service_categories():
         categories = cursor.fetchall()
         cursor.close()
         conn.close()
-        
         # Map category names to our custom SVG icons
         icon_mapping = {
             'Lawn Care': '/static/icons/lawn.svg',
@@ -578,14 +552,12 @@ def get_service_categories():
             'Windows & Doors': '/static/icons/windows.svg',
             'Home Repair': '/static/icons/home-repair.svg'
         }
-        
         # Update icon URLs to use our custom SVG icons
         for category in categories:
             category_name = category['name']
             if category_name in icon_mapping:
                 category['icon_url'] = icon_mapping[category_name]
-        
-        return jsonify(categories)
+            return jsonify(categories)
     except Exception as e:
         logger.error(f"Error fetching service categories: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -599,7 +571,6 @@ def get_services():
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
         # Get all categories
         cursor.execute("""
             SELECT id, name, description, icon as icon_url 
@@ -607,7 +578,6 @@ def get_services():
             ORDER BY name
         """)
         categories = cursor.fetchall()
-        
         # For each category, get its services
         for category in categories:
             cursor.execute("""
@@ -620,8 +590,7 @@ def get_services():
                 ORDER BY s.name
             """, (category['id'],))
             services = cursor.fetchall()
-            
-            # For each service, get its sub-services if any
+        # For each service, get its sub-services if any
             for service in services:
                 cursor.execute("""
                     SELECT id, name, description, price_adjustment, is_default
@@ -631,13 +600,10 @@ def get_services():
                 """, (service['id'],))
                 options = cursor.fetchall()
                 service['options'] = options
-            
-            category['services'] = services
-        
-        cursor.close()
+                category['services'] = services
+            cursor.close()
         conn.close()
-        
-        return jsonify(categories)
+            return jsonify(categories)
     except Exception as e:
         logger.error(f"Error fetching services: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -659,8 +625,7 @@ def get_service_tiers():
         tiers = cursor.fetchall()
         cursor.close()
         conn.close()
-        
-        return jsonify(tiers)
+            return jsonify(tiers)
     except Exception as e:
         logger.error(f"Error fetching service tiers: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -677,19 +642,16 @@ def get_contractors():
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
-        query = """
+            query = """
             SELECT c.id, c.name, c.description, c.contact_email, 
                   c.contact_phone, c.website, c.logo_url, c.rating,
                   c.tier_level, COUNT(cr.id) as review_count
             FROM contractors c
             LEFT JOIN contractor_reviews cr ON c.id = cr.contractor_id
         """
-        
-        params = []
+            params = []
         where_clauses = []
-        
-        if service_id:
+            if service_id:
             where_clauses.append("""
                 c.id IN (
                     SELECT contractor_id FROM contractor_services 
@@ -697,8 +659,7 @@ def get_contractors():
                 )
             """)
             params.append(service_id)
-            
-        if zipcode:
+            if zipcode:
             where_clauses.append("""
                 c.id IN (
                     SELECT contractor_id FROM contractor_service_areas 
@@ -706,15 +667,11 @@ def get_contractors():
                 )
             """)
             params.append(zipcode)
-        
-        if where_clauses:
+            if where_clauses:
             query += " WHERE " + " AND ".join(where_clauses)
-            
-        query += " GROUP BY c.id ORDER BY c.tier_level DESC, c.rating DESC"
-        
-        cursor.execute(query, params)
+            query += " GROUP BY c.id ORDER BY c.tier_level DESC, c.rating DESC"
+            cursor.execute(query, params)
         contractors = cursor.fetchall()
-        
         # Get services for each contractor
         for contractor in contractors:
             cursor.execute("""
@@ -725,11 +682,9 @@ def get_contractors():
             """, (contractor['id'],))
             services = cursor.fetchall()
             contractor['services'] = services
-            
-        cursor.close()
+            cursor.close()
         conn.close()
-        
-        return jsonify(contractors)
+            return jsonify(contractors)
     except Exception as e:
         logger.error(f"Error fetching contractors: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -752,7 +707,6 @@ def match_contractor():
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
         # Find best matching contractor
         cursor.execute("""
             SELECT c.id, c.name, c.description, c.contact_email, 
@@ -770,15 +724,12 @@ def match_contractor():
                 c.rating DESC
             LIMIT 1
         """, (service_id, zipcode))
-        
-        contractor = cursor.fetchone()
-        
-        if not contractor:
-            return jsonify({
+            contractor = cursor.fetchone()
+            if not contractor:
+        return jsonify({
                 "match_found": False,
                 "message": "No matching contractor found for this service in your area"
             })
-            
         # Get service details
         cursor.execute("""
             SELECT s.id, s.name, s.description, s.base_price
@@ -786,11 +737,9 @@ def match_contractor():
             WHERE s.id = %s
         """, (service_id,))
         service = cursor.fetchone()
-        
-        cursor.close()
+            cursor.close()
         conn.close()
-        
-        return jsonify({
+            return jsonify({
             "match_found": True,
             "contractor": contractor,
             "service": service
@@ -816,8 +765,7 @@ def get_stores():
         stores = cursor.fetchall()
         cursor.close()
         conn.close()
-        
-        return jsonify(stores)
+            return jsonify(stores)
     except Exception as e:
         logger.error(f"Error fetching stores: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -839,8 +787,7 @@ def get_store_categories():
         categories = cursor.fetchall()
         cursor.close()
         conn.close()
-        
-        return jsonify(categories)
+            return jsonify(categories)
     except Exception as e:
         logger.error(f"Error fetching store categories: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -860,7 +807,6 @@ def get_recommended_products():
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
         # First approach: Try direct text matching on products
         search_query = """
             SELECT p.id, p.name, p.description, p.price, 
@@ -877,19 +823,15 @@ def get_recommended_products():
             ORDER BY p.price DESC
             LIMIT %s
         """
-        
         # Use room type as search parameter
         search_pattern = f"%{room_type}%"
         params = [search_pattern, search_pattern, search_pattern, limit]
-        
-        cursor.execute(search_query, params)
+            cursor.execute(search_query, params)
         recommended_products = cursor.fetchall()
-        
         # If no direct matches, use room category mapping
         if len(recommended_products) == 0:
             logger.info(f"No direct matches for room type {room_type}, trying category mapping")
-            
-            # Map room types to categories that would be relevant for that room
+        # Map room types to categories that would be relevant for that room
             room_category_map = {
                 'living': ['Furniture', 'Lighting', 'Decor', 'Entertainment'],
                 'kitchen': ['Kitchen', 'Appliances', 'Dining'],
@@ -898,11 +840,9 @@ def get_recommended_products():
                 'office': ['Office', 'Furniture', 'Electronics'],
                 'outdoor': ['Outdoor', 'Garden', 'Patio']
             }
-            
-            # Get categories relevant to this room type
+        # Get categories relevant to this room type
             relevant_categories = room_category_map.get(room_type.lower(), ['Furniture', 'Lighting', 'Decor'])
-            
-            placeholders = ', '.join(['%s'] * len(relevant_categories))
+                placeholders = ', '.join(['%s'] * len(relevant_categories))
             category_query = f"""
                 SELECT p.id, p.name, p.description, p.price, 
                       p.is_on_sale, p.sale_price, p.image_url,
@@ -916,17 +856,14 @@ def get_recommended_products():
                 ORDER BY p.price DESC
                 LIMIT %s
             """
-            
-            # Build array of patterns for ILIKE ANY
+        # Build array of patterns for ILIKE ANY
             category_patterns = [f"%{cat}%" for cat in relevant_categories]
             cursor.execute(category_query, [category_patterns, limit])
             recommended_products = cursor.fetchall()
-        
         # If still no results, return featured products
         if len(recommended_products) == 0:
             logger.info(f"No category matches for room type {room_type}, falling back to featured products")
-            
-            # Fallback to random products
+        # Fallback to random products
             cursor.execute("""
                 SELECT p.id, p.name, p.description, p.price, 
                     p.is_on_sale, p.sale_price, p.image_url,
@@ -940,24 +877,19 @@ def get_recommended_products():
                 LIMIT %s
             """, [limit])
             recommended_products = cursor.fetchall()
-        
         # Format the products for the response
         for product in recommended_products:
-            # Format for JSON serialization
+    # Format for JSON serialization
             if product['price'] is not None:
                 product['price'] = float(product['price'])
             if product['sale_price'] is not None:
                 product['sale_price'] = float(product['sale_price'])
-            
-            # Add formatted data
+        # Add formatted data
             product['image_url'] = product['image_url'] or '/static/img/product-placeholder.jpg'
-            
-            # Rename store_name to a more frontend-friendly property
+        # Rename store_name to a more frontend-friendly property
             product['store'] = product['store_name']
-        
-        return jsonify({"products": recommended_products})
-    
-    except Exception as e:
+            return jsonify({"products": recommended_products})
+        except Exception as e:
         logger.error(f"Error retrieving recommended products: {str(e)}")
         return jsonify({"error": "Failed to retrieve recommended products"}), 500
     
@@ -979,7 +911,6 @@ def get_products():
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
         # Get all categories first
         cursor.execute("""
             SELECT sc.id, sc.name
@@ -987,7 +918,6 @@ def get_products():
             ORDER BY sc.name
         """)
         categories = cursor.fetchall()
-        
         # For each category, get its products (with filters applied)
         for category in categories:
             query = """
@@ -999,43 +929,32 @@ def get_products():
                 JOIN stores s ON p.store_id = s.id
                 WHERE p.category_id = %s
             """
-            
-            params = [category['id']]
-            
-            if store_id:
+                params = [category['id']]
+                if store_id:
                 query += " AND p.store_id = %s"
                 params.append(store_id)
-                
-            if search_term:
+                if search_term:
                 query += " AND (p.name ILIKE %s OR p.description ILIKE %s)"
                 search_pattern = f"%{search_term}%"
                 params.extend([search_pattern, search_pattern])
-                
-            query += f" ORDER BY p.name LIMIT {limit}"
-            
-            cursor.execute(query, params)
+                query += f" ORDER BY p.name LIMIT {limit}"
+                cursor.execute(query, params)
             products = cursor.fetchall()
-            
-            # Format the products for the response
+        # Format the products for the response
             for product in products:
-                # Format for JSON serialization
+    # Format for JSON serialization
                 if product['price'] is not None:
                     product['price'] = float(product['price'])
                 if product['sale_price'] is not None:
                     product['sale_price'] = float(product['sale_price'])
-                
-                # Add formatted data
+        # Add formatted data
                 product['image_url'] = product['image_url'] or '/static/img/product-placeholder.jpg'
-                
-            category['products'] = products
-            
+                category['products'] = products
         # Filter out categories with no products
         categories = [cat for cat in categories if cat['products']]
-        
-        cursor.close()
+            cursor.close()
         conn.close()
-        
-        return jsonify(categories)
+            return jsonify(categories)
     except Exception as e:
         logger.error(f"Error fetching products: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -1052,30 +971,25 @@ def get_addresses():
     try:
         conn = get_db_connection()
         if not conn:
-            return jsonify({"error": "Database connection failed"}), 500
-        
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        
+        return jsonify({"error": "Database connection failed"}), 500
+            cur = conn.cursor(cursor_factory=RealDictCursor)
         # Get all addresses from the database
         cur.execute("SELECT * FROM addresses ORDER BY id DESC")
         addresses = cur.fetchall()
         cur.close()
         conn.close()
-        
         # Convert addresses to a list of dictionaries
         address_list = []
         for address in addresses:
             address_dict = dict(address)
-            # Ensure lat/lng are properly formatted as floats
+    # Ensure lat/lng are properly formatted as floats
             if address_dict.get('lat') is not None:
                 address_dict['lat'] = float(address_dict['lat'])
             if address_dict.get('lng') is not None:
                 address_dict['lng'] = float(address_dict['lng'])
             address_list.append(address_dict)
-        
-        return jsonify({"addresses": address_list})
-    
-    except Exception as e:
+            return jsonify({"addresses": address_list})
+        except Exception as e:
         logger.error(f"Error getting addresses: {str(e)}")
         return jsonify({"error": f"Failed to get addresses: {str(e)}"}), 500
 
@@ -1101,7 +1015,7 @@ def dashboard():
                 if result:
                     address_id = result['id']
                 cursor.close()
-            except Exception as e:
+    except Exception as e:
                 logger.error(f"Error getting recent address: {e}")
             finally:
                 conn.close()
@@ -1135,15 +1049,14 @@ if address_id:
         try:
             address_property_data = get_property_data_by_address(address_id)
             if address_property_data:
-                # Update with real data but keep defaults for missing values
+    # Update with real data but keep defaults for missing values
                 for key in property_data.keys():
                     if key in address_property_data and address_property_data[key]:
                         property_data[key] = address_property_data[key]
-                
-                # Format the estimated value for display
+        # Format the estimated value for display
                 if 'estimated_value' in address_property_data and address_property_data['estimated_value']:
                     property_data['formatted_value'] = format_price(address_property_data['estimated_value'])
-        except Exception as e:
+    except Exception as e:
             logger.error(f"Error getting property data: {e}")
     
     # Make sure we have a formatted value
@@ -1184,7 +1097,7 @@ def control():
                 if result:
                     address_id = result['id']
                 cursor.close()
-            except Exception as e:
+    except Exception as e:
                 logger.error(f"Error getting recent address: {e}")
             finally:
                 conn.close()
@@ -1205,17 +1118,15 @@ def control():
         try:
             address_property_data = get_property_data_by_address(address_id)
             if address_property_data:
-                # Update with real data but keep defaults for missing values
+    # Update with real data but keep defaults for missing values
                 for key in property_data.keys():
                     if key in address_property_data and address_property_data[key]:
                         property_data[key] = address_property_data[key]
-                
-                # Format the estimated value for display
+        # Format the estimated value for display
                 if 'estimated_value' in address_property_data and address_property_data['estimated_value']:
                     property_data['formatted_value'] = format_price(address_property_data['estimated_value'])
-                    
-                # Get the full address line from database
-                conn = get_db_connection()
+        # Get the full address line from database
+        conn = get_db_connection()
                 if conn:
                     try:
                         cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -1224,7 +1135,7 @@ def control():
                         if address_result:
                             property_data['address_line'] = address_result['full_address']
                         cursor.close()
-                    except Exception as e:
+    except Exception as e:
                         logger.error(f"Error getting address: {e}")
                     finally:
                         conn.close()
@@ -1283,7 +1194,6 @@ def process_address():
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
         # Add address
         cursor.execute("""
             INSERT INTO addresses ( 
@@ -1306,8 +1216,7 @@ def process_address():
         conn.commit()
         cursor.close()
         conn.close()
-        
-        return jsonify({
+            return jsonify({
             "success": True,  
             "address_id": address_id,  # Changed from "id" to "address_id"
             "message": "Address saved successfully"
@@ -1327,28 +1236,22 @@ def process_address():
             geocode_url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{full_address}.json?access_token={mapbox_token}&country=US&types=address"
             response = requests.get(geocode_url)
             geocode_data = response.json()
-            
-            if not geocode_data['features'] or len(geocode_data['features']) == 0:
-                return jsonify({"error": "Could not geocode the address"}), 400
-            
-            # Get the first feature (most relevant match)
+                if not geocode_data['features'] or len(geocode_data['features']) == 0:
+        return jsonify({"error": "Could not geocode the address"}), 400
+        # Get the first feature (most relevant match)
             feature = geocode_data['features'][0]
-
-            # Extract components from the context and place_name
+        # Extract components from the context and place_name
             context = feature.get('context', [])
             place_name_parts = feature.get('place_name', '').split(', ')
-            
-            street = feature.get('text', '')
+                street = feature.get('text', '')
             address_number = feature.get('address', '')
             if address_number:
                 street = f"{address_number} {street}"
-            
-            city = ""
+                city = ""
             state = ""
             country = "USA"
             postal_code = ""
-            
-            # Extract information from context
+        # Extract information from context
             for item in context:
                 if item.get('id', '').startswith('place'):
                     city = item.get('text', '')
@@ -1358,8 +1261,7 @@ def process_address():
                     country = item.get('text', '')
                 elif item.get('id', '').startswith('postcode'):
                     postal_code = item.get('text', '')
-            
-            # Build standardized address_data
+        # Build standardized address_data
             coordinates = feature.get('center', [0, 0])
             address_data = {
                 'street': street,
@@ -1371,7 +1273,6 @@ def process_address():
                 'lng': coordinates[0],
                 'full_address': feature.get('place_name', full_address)
             }
-        
         except Exception as e:
             logger.error(f"Error geocoding address: {str(e)}")
             return jsonify({"error": "Failed to process address information"}), 500
@@ -1395,7 +1296,6 @@ def process_address():
             
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-            
         # Add address
         cursor.execute("""
             INSERT INTO addresses (
@@ -1414,14 +1314,12 @@ def process_address():
             address_data.get('lng', 0),
             f"{address_data['street']}, {address_data['city']}, {address_data['state']} {address_data['zip']}, {address_data['country']}",
         ))
-                    
-        address_id = cursor.fetchone()['id']
-                    
+            address_id = cursor.fetchone()['id']
         # Link to user if user_id is provided
         if 'user_id' in address_data and address_data['user_id']:
             cursor.execute("""
                 INSERT INTO user_addresses (
-                    user_id, address_id, is_primary, created_at
+        user_id, address_id, is_primary, created_at
                 ) VALUES (   
                     %s, %s, true, NOW()
                 )
@@ -1429,12 +1327,10 @@ def process_address():
                 address_data['user_id'],
                 address_id
             ))
-             
-        conn.commit()
+            conn.commit()
         cursor.close()
         conn.close()
-            
-        return jsonify({
+            return jsonify({
             "success": True,
             "address_id": address_id,
             "message": "Address saved successfully"
@@ -1520,7 +1416,6 @@ if address_number:
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
         # Add address
         cursor.execute("""
             INSERT INTO addresses (
@@ -1539,14 +1434,12 @@ if address_number:
             address_data.get('lng', 0),
             f"{address_data['street']}, {address_data['city']}, {address_data['state']} {address_data['zip']}, {address_data['country']}",
         ))
-        
-        address_id = cursor.fetchone()['id']
-        
+            address_id = cursor.fetchone()['id']
         # Link to user if user_id is provided
         if 'user_id' in address_data and address_data['user_id']:
             cursor.execute("""
                 INSERT INTO user_addresses (
-                    user_id, address_id, is_primary, created_at
+        user_id, address_id, is_primary, created_at
                 ) VALUES (
                     %s, %s, true, NOW()
                 )
@@ -1554,17 +1447,15 @@ if address_number:
                 address_data['user_id'],
                 address_id
             ))
-        
-        conn.commit()
+            conn.commit()
         cursor.close()
         conn.close()
-        
-        return jsonify({
+            return jsonify({
             "success": True,
             "address_id": address_id,
             "message": "Address saved successfully"
         })
-     except Exception as e:
+    except Exception as e:
          logger.error(f"Error saving address: {str(e)}")
          return jsonify({"error": str(e)}), 500
 
@@ -1572,12 +1463,11 @@ if address_number:
 def get_all_addresses():
     """Get saved addresses for current user"""
     try:
-        # In a real app, we would use user authentication to get only addresses
-        # for the current user. For this demo, we'll return all addresses.
+    # In a real app, we would use user authentication to get only addresses
+    # for the current user. For this demo, we'll return all addresses.
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
-        cursor.execute("""
+            cursor.execute("""
             SELECT 
                 id, street, city, state, zip, country, 
                 lat, lng, full_address, created_at
@@ -1585,12 +1475,10 @@ def get_all_addresses():
             ORDER BY created_at DESC
             LIMIT 5
         """)
-        
-        addresses = cursor.fetchall()
+            addresses = cursor.fetchall()
         cursor.close()
         conn.close()
-        
-        return jsonify({"addresses": addresses})
+            return jsonify({"addresses": addresses})
     except Exception as e:
         logger.error(f"Error retrieving addresses: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -1601,62 +1489,51 @@ def verify_profile():
     """Update email and password for user profile"""
     try:
         data = request.get_json()
-        
-        if not data or 'email' not in data or 'password' not in data:
-            return jsonify({"error": "Email and password are required"}), 400
-            
-        email = data['email']
+            if not data or 'email' not in data or 'password' not in data:
+        return jsonify({"error": "Email and password are required"}), 400
+            email = data['email']
         password = data['password']
-        
         # Validate email format
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            return jsonify({"error": "Invalid email format"}), 400
-            
+        return jsonify({"error": "Invalid email format"}), 400
         # In a real app, we would hash the password before storing
-        # Here, we'll just check if it meets minimum requirements
+    # Here, we'll just check if it meets minimum requirements
         if len(password) < 6:
-            return jsonify({"error": "Password must be at least 6 characters"}), 400
-        
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
         # In a real app, we would store this in a users table
-        # For now, we'll store it in a profiles table
+    # For now, we'll store it in a profiles table
         conn = get_db_connection()
         cursor = conn.cursor()
-        
         # Check if the profiles table exists, create if not
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS profiles (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
-                password_hash VARCHAR(255) NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
         conn.commit()
-        
         # Check if this email is already registered
         cursor.execute("SELECT id FROM profiles WHERE email = %s", (email,))
         existing = cursor.fetchone()
-        
-        if existing:
-            # Update existing profile
+            if existing:
+    # Update existing profile
             cursor.execute(
                 "UPDATE profiles SET password_hash = %s WHERE email = %s",
                 (password, email)
             )
         else:
-            # Create new profile
+    # Create new profile
             cursor.execute(
                 "INSERT INTO profiles (email, password_hash) VALUES (%s, %s)",
                 (email, password)
             )
-            
-        conn.commit()
+            conn.commit()
         cursor.close()
         conn.close()
-        
-        return jsonify({"success": True, "message": "Profile updated successfully"})
-        
-    except Exception as e:
+            return jsonify({"success": True, "message": "Profile updated successfully"})
+        except Exception as e:
         logger.error(f"Error updating profile: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -1677,8 +1554,7 @@ def get_product(product_id):
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
-        cursor.execute("""
+            cursor.execute("""
             SELECT p.id, p.name, p.description, p.price, 
                 p.is_on_sale, p.sale_price, p.image_url,
                 p.product_url, p.external_id,
@@ -1689,24 +1565,18 @@ def get_product(product_id):
             JOIN store_categories sc ON p.category_id = sc.id
             WHERE p.id = %s
         """, [product_id])
-        
-        product = cursor.fetchone()
-        
-        if not product:
-            return jsonify({"error": "Product not found"}), 404
-        
+            product = cursor.fetchone()
+            if not product:
+        return jsonify({"error": "Product not found"}), 404
         # Format the product for the response
         if product['price'] is not None:
             product['price'] = float(product['price'])
         if product['sale_price'] is not None:
             product['sale_price'] = float(product['sale_price'])
-        
         # Add formatted data
         product['image_url'] = product['image_url'] or '/static/img/product-placeholder.jpg'
-        
-        return jsonify(product)
-    
-    except Exception as e:
+            return jsonify(product)
+        except Exception as e:
         logger.error(f"Error getting product: {str(e)}")
         return jsonify({"error": f"Failed to get product: {str(e)}"}), 500
     
