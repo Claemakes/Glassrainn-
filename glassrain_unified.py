@@ -29,7 +29,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # JSON encoder for Decimal
-class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Decimal):
             return float(o)
@@ -43,23 +42,10 @@ app.json_encoder = DecimalEncoder
 def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
-        # Get connection values directly
-        dbname = "postgres"
-        user = "postgres"
-        password = "Michiganfootball24Cclae"
-        host = "db.qqkmcqgwkiuyqymvdigh.supabase.co"
-        port = "5432"
-        
-        # Connect with keyword parameters instead of connection string
-        conn = psycopg2.connect(
-            dbname=dbname,
-            user=user,
-            password=password,
-            host=host,
-            port=port,
-            sslmode='require'
-        )
-        
+        # Using Render PostgreSQL connection URL
+        DATABASE_URL = 
+"postgresql://glass:lcol1JTaQSXDSddMUELubDf7of0qq4e9@dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com/glassrain"
+        conn = psycopg2.connect(DATABASE_URL)
         conn.autocommit = True
         logger.info("✅ Database connection successful")
         return conn
@@ -68,257 +54,442 @@ def get_db_connection():
         return None
 
 def setup_database():
-    """Create all required database tables if they don't exist"""
+    """Setup the database tables if they don't exist"""
     try:
+        logger.info("Running database setup...")
+        
         conn = get_db_connection()
         if conn is None:
-            logger.error("❌ Failed to connect to database for setup")
-            return False
+            logger.error("Failed to connect to the database, cannot set up tables")
+            return
+
+        with conn.cursor() as cur:
+            # User accounts table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id SERIAL PRIMARY KEY,
+                    email VARCHAR(255) UNIQUE,
+                    password_hash VARCHAR(255),
+                    first_name VARCHAR(100),
+                    last_name VARCHAR(100),
+                    phone VARCHAR(50),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_login TIMESTAMP,
+                    account_status VARCHAR(20) DEFAULT 'active'
+                )
+            ''')
             
-        cursor = conn.cursor()
-        
-        # Address and property tables
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS addresses (
-                id SERIAL PRIMARY KEY,
-                full_address TEXT NOT NULL,
-                street TEXT,
-                city TEXT,
-                state TEXT,
-                zip TEXT,
-                country TEXT,
-                latitude DECIMAL,
-                longitude DECIMAL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS homes (
-                id SERIAL PRIMARY KEY,
-                address_id INTEGER REFERENCES addresses(id),
-                square_feet INTEGER,
-                bedrooms DECIMAL,
-                bathrooms DECIMAL,
-                year_built INTEGER,
-                property_type TEXT,
-                roof_type TEXT,
-                siding_type TEXT,
-                energy_score INTEGER,
-                model_data JSONB,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Service marketplace tables
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS service_categories (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                description TEXT,
-                icon TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS services (
-                id SERIAL PRIMARY KEY,
-                category_id INTEGER REFERENCES service_categories(id),
-                name TEXT NOT NULL,
-                description TEXT,
-                base_price DECIMAL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS service_tiers (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                description TEXT,
-                price_multiplier DECIMAL DEFAULT 1.0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS service_requests (
-                id SERIAL PRIMARY KEY,
-                home_id INTEGER REFERENCES homes(id),
-                service_id INTEGER REFERENCES services(id),
-                tier_id INTEGER,
-                requested_date DATE,
-                status TEXT DEFAULT 'pending',
-                notes TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Elevate shop tables
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS room_types (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                description TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS product_categories (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                description TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS products (
-                id SERIAL PRIMARY KEY,
-                category_id INTEGER REFERENCES product_categories(id),
-                name TEXT NOT NULL,
-                description TEXT,
-                price DECIMAL,
-                image_url TEXT,
-                store_url TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS room_scans (
-                id SERIAL PRIMARY KEY,
-                home_id INTEGER REFERENCES homes(id),
-                room_type_id INTEGER REFERENCES room_types(id),
-                scan_data JSONB,
-                detected_issues JSONB,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS design_projects (
-                id SERIAL PRIMARY KEY,
-                home_id INTEGER REFERENCES homes(id),
-                room_type_id INTEGER REFERENCES room_types(id),
-                name TEXT,
-                description TEXT,
-                design_data JSONB,
-                budget DECIMAL,
-                status TEXT DEFAULT 'in_progress',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # DIY project tables
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS diy_projects (
-                id SERIAL PRIMARY KEY,
-                home_id INTEGER REFERENCES homes(id),
-                title TEXT NOT NULL,
-                description TEXT,
-                difficulty TEXT,
-                estimated_time TEXT,
-                estimated_cost DECIMAL,
-                materials JSONB,
-                steps JSONB,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Insert initial service categories data
-        cursor.execute('''
-            INSERT INTO service_categories (name, description, icon)
-            SELECT 'Lawn Care', 'Professional lawn maintenance services', 
-'grass'
-            WHERE NOT EXISTS (SELECT 1 FROM service_categories WHERE name 
-= 'Lawn Care')
-        ''')
-        
-        cursor.execute('''
-            INSERT INTO service_categories (name, description, icon)
-            SELECT 'Cleaning', 'Home cleaning services', 'spray-can'
-            WHERE NOT EXISTS (SELECT 1 FROM service_categories WHERE name 
-= 'Cleaning')
-        ''')
-        
-        cursor.execute('''
-            INSERT INTO service_categories (name, description, icon)
-            SELECT 'HVAC', 'Heating, ventilation, and air conditioning 
-services', 'thermometer'
-            WHERE NOT EXISTS (SELECT 1 FROM service_categories WHERE name 
-= 'HVAC')
-        ''')
-        
-        # Insert initial service tiers
-        cursor.execute('''
-            INSERT INTO service_tiers (name, description, 
-price_multiplier)
-            SELECT 'Basic', 'Essential service coverage', 1.0
-            WHERE NOT EXISTS (SELECT 1 FROM service_tiers WHERE name = 
-'Basic')
-        ''')
-        
-        cursor.execute('''
-            INSERT INTO service_tiers (name, description, 
-price_multiplier)
-            SELECT 'Standard', 'Comprehensive service with additional 
-features', 1.3
-            WHERE NOT EXISTS (SELECT 1 FROM service_tiers WHERE name = 
-'Standard')
-        ''')
-        
-        cursor.execute('''
-            INSERT INTO service_tiers (name, description, 
-price_multiplier)
-            SELECT 'Premium', 'Complete service with priority scheduling 
-and guarantees', 1.7
-            WHERE NOT EXISTS (SELECT 1 FROM service_tiers WHERE name = 
-'Premium')
-        ''')
-        
-        # Insert room types
-        cursor.execute('''
-            INSERT INTO room_types (name, description)
-            SELECT 'Living Room', 'Main living space for relaxation and 
-entertainment'
-            WHERE NOT EXISTS (SELECT 1 FROM room_types WHERE name = 
-'Living Room')
-        ''')
-        
-        cursor.execute('''
-            INSERT INTO room_types (name, description)
-            SELECT 'Kitchen', 'Food preparation and dining area'
-            WHERE NOT EXISTS (SELECT 1 FROM room_types WHERE name = 
-'Kitchen')
-        ''')
-        
-        cursor.execute('''
-            INSERT INTO room_types (name, description)
-            SELECT 'Bathroom', 'Personal hygiene and grooming space'
-            WHERE NOT EXISTS (SELECT 1 FROM room_types WHERE name = 
-'Bathroom')
-        ''')
-        
-        cursor.execute('''
-            INSERT INTO room_types (name, description)
-            SELECT 'Bedroom', 'Sleeping and personal space'
-            WHERE NOT EXISTS (SELECT 1 FROM room_types WHERE name = 
-'Bedroom')
-        ''')
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-        
-        logger.info("✅ Database setup completed successfully")
-        return True
-        
+            # User settings/preferences
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS user_preferences (
+                    preference_id SERIAL PRIMARY KEY,
+                    user_id INTEGER REFERENCES users(user_id),
+                    theme VARCHAR(20) DEFAULT 'dark',
+                    notification_preferences JSONB,
+                    dashboard_layout JSONB,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Addresses table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS addresses (
+                    address_id SERIAL PRIMARY KEY,
+                    user_id VARCHAR(100) DEFAULT 'default_user',
+                    full_address TEXT NOT NULL,
+                    street VARCHAR(200),
+                    city VARCHAR(100),
+                    state VARCHAR(50),
+                    zip VARCHAR(20),
+                    country VARCHAR(50) DEFAULT 'United States',
+                    latitude DECIMAL(10, 7),
+                    longitude DECIMAL(10, 7),
+                    is_primary BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Home properties table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS homes (
+                    home_id SERIAL PRIMARY KEY,
+                    address_id INTEGER REFERENCES addresses(address_id),
+                    property_type VARCHAR(50),
+                    year_built INTEGER,
+                    square_feet INTEGER,
+                    bedrooms DECIMAL(3, 1),
+                    bathrooms DECIMAL(3, 1),
+                    floors INTEGER DEFAULT 1,
+                    has_basement BOOLEAN DEFAULT FALSE,
+                    has_garage BOOLEAN DEFAULT FALSE,
+                    lot_size_sqft INTEGER,
+                    energy_score INTEGER,
+                    maintenance_score INTEGER,
+                    roof_type VARCHAR(50),
+                    exterior_material VARCHAR(50),
+                    heating_type VARCHAR(50),
+                    cooling_type VARCHAR(50),
+                    foundation_type VARCHAR(50),
+                    property_value DECIMAL(12, 2),
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    model_data JSONB
+                )
+            ''')
+            
+            # 3D model elements
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS home_model_elements (
+                    element_id SERIAL PRIMARY KEY,
+                    home_id INTEGER REFERENCES homes(home_id),
+                    element_type VARCHAR(50), -- roof, siding, window, door, etc.
+                    position_data JSONB,
+                    material VARCHAR(50),
+                    color VARCHAR(50),
+                    dimensions JSONB,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Room types reference table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS room_types (
+                    room_type_id SERIAL PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL,
+                    description TEXT,
+                    icon VARCHAR(50)
+                )
+            ''')
+            
+            # Rooms table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS rooms (
+                    room_id SERIAL PRIMARY KEY,
+                    home_id INTEGER REFERENCES homes(home_id),
+                    room_type_id INTEGER REFERENCES room_types(room_type_id),
+                    name VARCHAR(100),
+                    floor INTEGER DEFAULT 1,
+                    square_feet INTEGER,
+                    width_feet DECIMAL(5, 2),
+                    length_feet DECIMAL(5, 2),
+                    ceiling_height_feet DECIMAL(4, 2),
+                    last_renovated INTEGER,
+                    current_color VARCHAR(50),
+                    flooring_type VARCHAR(50),
+                    scan_data JSONB,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Room scans table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS room_scans (
+                    scan_id SERIAL PRIMARY KEY,
+                    room_id INTEGER REFERENCES rooms(room_id),
+                    scan_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    scan_type VARCHAR(50),
+                    scan_data JSONB,
+                    detected_issues JSONB,
+                    scan_image_url TEXT
+                )
+            ''')
+            
+            # Design projects table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS design_projects (
+                    project_id SERIAL PRIMARY KEY,
+                    room_id INTEGER REFERENCES rooms(room_id),
+                    name VARCHAR(200) NOT NULL,
+                    description TEXT,
+                    status VARCHAR(50) DEFAULT 'draft',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    completed_at TIMESTAMP,
+                    budget DECIMAL(10, 2),
+                    style_preferences TEXT[],
+                    before_images TEXT[],
+                    after_images TEXT[],
+                    ai_recommendations JSONB
+                )
+            ''')
+            
+            # Design chat history
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS design_chat_messages (
+                    message_id SERIAL PRIMARY KEY,
+                    project_id INTEGER REFERENCES design_projects(project_id),
+                    sender VARCHAR(50), -- 'user' or 'assistant'
+                    message TEXT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    message_type VARCHAR(50) DEFAULT 'text',
+                    media_url TEXT,
+                    metadata JSONB
+                )
+            ''')
+            
+            # Service categories
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS service_categories (
+                    category_id SERIAL PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL,
+                    description TEXT,
+                    icon VARCHAR(100)
+                )
+            ''')
+            
+            # Services table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS services (
+                    service_id SERIAL PRIMARY KEY,
+                    category_id INTEGER REFERENCES service_categories(category_id),
+                    name VARCHAR(200) NOT NULL,
+                    description TEXT,
+                    base_price DECIMAL(10, 2),
+                    price_unit VARCHAR(50),
+                    duration_minutes INTEGER,
+                    image_url TEXT
+                )
+            ''')
+            
+            # Service tiers table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS service_tiers (
+                    tier_id SERIAL PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL,
+                    description TEXT,
+                    price_multiplier DECIMAL(3, 2) NOT NULL
+                )
+            ''')
+            
+            # Contractors table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS contractors (
+                    contractor_id SERIAL PRIMARY KEY,
+                    name VARCHAR(200) NOT NULL,
+                    description TEXT,
+                    logo_url TEXT,
+                    website_url TEXT,
+                    contact_email VARCHAR(255),
+                    contact_phone VARCHAR(50),
+                    rating DECIMAL(3, 1),
+                    review_count INTEGER,
+                    years_experience INTEGER,
+                    service_areas TEXT[],
+                    insurance_verified BOOLEAN DEFAULT FALSE,
+                    background_checked BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Contractor services mapping
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS contractor_services (
+                    id SERIAL PRIMARY KEY,
+                    contractor_id INTEGER REFERENCES contractors(contractor_id),
+                    service_id INTEGER REFERENCES services(service_id),
+                    price_modifier DECIMAL(3, 2) DEFAULT 1.0,
+                    availability JSONB,
+                    UNIQUE (contractor_id, service_id)
+                )
+            ''')
+            
+            # Service requests/quotes table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS service_requests (
+                    request_id SERIAL PRIMARY KEY,
+                    user_id VARCHAR(100) DEFAULT 'default_user',
+                    address_id INTEGER REFERENCES addresses(address_id),
+                    service_id INTEGER REFERENCES services(service_id),
+                    tier_id INTEGER REFERENCES service_tiers(tier_id),
+                    contractor_id INTEGER REFERENCES contractors(contractor_id),
+                    requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    preferred_date DATE,
+                    notes TEXT,
+                    status VARCHAR(50) DEFAULT 'pending',
+                    estimated_price DECIMAL(10, 2),
+                    final_price DECIMAL(10, 2),
+                    scheduled_date DATE,
+                    completion_date DATE,
+                    customer_rating DECIMAL(3, 1),
+                    customer_review TEXT
+                )
+            ''')
+            
+            # DIY projects table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS diy_projects (
+                    project_id SERIAL PRIMARY KEY,
+                    user_id VARCHAR(100) DEFAULT 'default_user',
+                    room_id INTEGER REFERENCES rooms(room_id),
+                    title VARCHAR(200),
+                    description TEXT,
+                    difficulty VARCHAR(50),
+                    estimated_time VARCHAR(100),
+                    estimated_cost DECIMAL(10, 2),
+                    steps JSONB,
+                    materials JSONB,
+                    tools TEXT[],
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    status VARCHAR(50) DEFAULT 'planned'
+                )
+            ''')
+            
+            # DIY chat history
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS diy_chat_messages (
+                    message_id SERIAL PRIMARY KEY,
+                    user_id VARCHAR(100) DEFAULT 'default_user',
+                    project_id INTEGER REFERENCES diy_projects(project_id),
+                    sender VARCHAR(50), -- 'user' or 'assistant'
+                    message TEXT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    message_type VARCHAR(50) DEFAULT 'text',
+                    media_url TEXT,
+                    metadata JSONB
+                )
+            ''')
+            
+            # Weather data cache
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS weather_data (
+                    id SERIAL PRIMARY KEY,
+                    address_id INTEGER REFERENCES addresses(address_id),
+                    weather_date DATE,
+                    forecast_data JSONB,
+                    retrieved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Insert sample data only if tables are empty
+            for table in ['service_categories', 'service_tiers', 'room_types', 
+'contractors']:
+                cur.execute(f"SELECT COUNT(*) FROM {table}")
+                count = cur.fetchone()[0]
+                if count == 0:
+                    if table == 'service_categories':
+                        # Service categories
+                        cur.execute('''
+                            INSERT INTO service_categories (name, description, icon)
+                            VALUES 
+                                ('Lawn Care & Landscaping', 'Professional lawn and garden 
+services', 'grass'),
+                                ('Cleaning', 'Home cleaning services, interior and 
+exterior', 'spraybottle'),
+                                ('Plumbing', 'Plumbing repairs and installations', 'pipe'),
+                                ('Electrical', 'Electrical repairs and installations', 
+'zap'),
+                                ('HVAC', 'Heating, ventilation, and air conditioning 
+services', 'thermometer'),
+                                ('Painting', 'Interior and exterior painting services', 
+'paintbrush'),
+                                ('Carpentry', 'Carpentry and woodworking services', 
+'hammer'),
+                                ('Flooring', 'Flooring installation and repair', 'grid'),
+                                ('Roofing', 'Roof repair and installation', 'home'),
+                                ('Windows & Doors', 'Window and door installation and 
+repair', 'squareframe')
+                        ''')
+                    elif table == 'service_tiers':
+                        # Service tiers
+                        cur.execute('''
+                            INSERT INTO service_tiers (name, description, price_multiplier)
+                            VALUES 
+                                ('Basic', 'Standard service without any extras', 1.0),
+                                ('Plus', 'Enhanced service with additional features', 1.25),
+                                ('Premium', 'Comprehensive service with all available 
+features', 1.5),
+                                ('Emergency', 'Urgent service with priority scheduling', 
+2.0)
+                        ''')
+                    elif table == 'room_types':
+                        # Room types
+                        cur.execute('''
+                            INSERT INTO room_types (name, description, icon)
+                            VALUES 
+                                ('Living Room', 'Main living area of the home', 'sofa'),
+                                ('Kitchen', 'Food preparation and dining area', 'chef'),
+                                ('Master Bedroom', 'Primary bedroom', 'bed'),
+                                ('Bedroom', 'Standard bedroom', 'bed'),
+                                ('Bathroom', 'Bathroom with shower/bath', 'bath'),
+                                ('Dining Room', 'Formal dining area', 'utensils'),
+                                ('Office', 'Home office or study', 'desk'),
+                                ('Basement', 'Below-grade living or storage space', 
+'archive'),
+                                ('Attic', 'Space under the roof', 'triangle'),
+                                ('Garage', 'Vehicle storage area', 'car'),
+                                ('Laundry Room', 'Washing and drying area', 'washer'),
+                                ('Hallway', 'Connecting space between rooms', 'route'),
+                                ('Entryway', 'Main entrance to the home', 'door')
+                        ''')
+                    elif table == 'contractors':
+                        # Sample contractors
+                        cur.execute('''
+                            INSERT INTO contractors (name, description, logo_url, 
+website_url, rating, review_count, years_experience, service_areas, insurance_verified, 
+background_checked)
+                            VALUES 
+                                ('Green Thumb Landscaping', 'Professional landscaping 
+services for residential and commercial properties', 
+'/static/img/contractors/greenthumb.png', 'https://example.com/greenthumb', 4.8, 214, 12, 
+ARRAY['Boston', 'Cambridge', 'Somerville'], TRUE, TRUE),
+                                ('Clean Sweep', 'Premium cleaning services for homes and 
+offices', '/static/img/contractors/cleansweep.png', 'https://example.com/cleansweep', 4.7, 
+189, 8, ARRAY['Boston', 'Cambridge', 'Brookline'], TRUE, TRUE),
+                                ('Plumb Perfect', 'Licensed plumbers for all your plumbing 
+needs', '/static/img/contractors/plumbperfect.png', 'https://example.com/plumbperfect', 4.6, 
+156, 15, ARRAY['Boston', 'Quincy', 'Dedham'], TRUE, TRUE),
+                                ('Electric Excellence', 'Master electricians for residential 
+and commercial projects', '/static/img/contractors/electricexcellence.png', 
+'https://example.com/electricexcellence', 4.9, 201, 20, ARRAY['Boston', 'Cambridge', 
+'Newton'], TRUE, TRUE),
+                                ('Climate Control', 'HVAC services for installation, repair, 
+and maintenance', '/static/img/contractors/climatecontrol.png', 
+'https://example.com/climatecontrol', 4.5, 178, 10, ARRAY['Boston', 'Somerville', 
+'Medford'], TRUE, TRUE),
+                                ('Perfect Painters', 'Interior and exterior painting 
+services', '/static/img/contractors/perfectpainters.png', 
+'https://example.com/perfectpainters', 4.7, 167, 14, ARRAY['Boston', 'Cambridge', 
+'Watertown'], TRUE, TRUE),
+                                ('Woodcraft Carpentry', 'Custom carpentry for homes and 
+businesses', '/static/img/contractors/woodcraft.png', 'https://example.com/woodcraft', 4.8, 
+143, 18, ARRAY['Boston', 'Brookline', 'Newton'], TRUE, TRUE),
+                                ('Floor Masters', 'Expert flooring installation and 
+refinishing', '/static/img/contractors/floormasters.png', 
+'https://example.com/floormasters', 4.6, 132, 12, ARRAY['Boston', 'Cambridge', 'Belmont'], 
+TRUE, TRUE),
+                                ('Rooftop Pros', 'Roofing specialists with quality 
+guarantees', '/static/img/contractors/rooftoppros.png', 'https://example.com/rooftoppros', 
+4.7, 156, 15, ARRAY['Boston', 'Quincy', 'Milton'], TRUE, TRUE),
+                                ('Window & Door Experts', 'Professional window and door 
+installation', '/static/img/contractors/windowexperts.png', 
+'https://example.com/windowexperts', 4.8, 145, 13, ARRAY['Boston', 'Somerville', 
+'Arlington'], TRUE, TRUE)
+                        ''')
+            
+            # Create indexes for frequently queried columns
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON 
+addresses(user_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_homes_address_id ON 
+homes(address_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_rooms_home_id ON rooms(home_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_services_category_id ON 
+services(category_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_contractor_services_contractor_id ON 
+contractor_services(contractor_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_service_requests_address_id ON 
+service_requests(address_id)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_service_requests_status ON 
+service_requests(status)')
+            
+            # Commit all changes
+            conn.commit()
+            logger.info("Database setup complete")
     except Exception as e:
-        logger.error(f"❌ Database setup error: {str(e)}")
-        return False
+        logger.error(f"Error setting up database: {str(e)}")
+        # Continue with application startup even if database setup fails
+    finally:
+        if 'conn' in locals() and conn is not None:
+            conn.close()
 
 # Initialize database
 setup_database()
