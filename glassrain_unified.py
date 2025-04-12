@@ -1256,22 +1256,22 @@ def settings():
 @app.route('/api/process-address', methods=['POST'])
 def process_address():
     """Process address data from the form, geocode using Mapbox, and save to database"""
-    if not request.json:
+    if not request.json: 
         return jsonify({"error": "No JSON data provided"}), 400
-    
+            
     address_data = request.json
-    
+
     # Check for the different format from updated template
     if 'address' in address_data:
         # This is from the updated template which just sends the full address string
         # We need to geocode it to get the details
         full_address = address_data['address']
-        
+
         # Get geocoding from Mapbox
         mapbox_token = os.environ.get('MAPBOX_API_KEY')
         if not mapbox_token:
             return jsonify({"error": "Mapbox API key not configured"}), 500
-            
+        
         # Geocode the address using Mapbox
         try:
             import requests
@@ -1281,9 +1281,11 @@ def process_address():
             
             if not geocode_data['features'] or len(geocode_data['features']) == 0:
                 return jsonify({"error": "Could not geocode the address"}), 400
-                
+            
             # Get the first feature (most relevant match)
-    # Extract components from the context and place_name
+            feature = geocode_data['features'][0]
+
+            # Extract components from the context and place_name
             context = feature.get('context', [])
             place_name_parts = feature.get('place_name', '').split(', ')
             
@@ -1336,6 +1338,11 @@ def process_address():
         mapbox_token = os.environ.get('MAPBOX_API_KEY')
         if not mapbox_token:
             return jsonify({"error": "Mapbox API key not configured"}), 500
+            
+    # Save address to database
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
             
 # Save address to database
 conn = get_db_connection()
