@@ -1468,10 +1468,10 @@ street = feature.get('text', '')
 address_number = feature.get('address', '')
 if address_number:
     street = f"{address_number} {street}"                
-            city = ""
-            state = ""
-            country = "USA"
-            postal_code = ""
+    city = ""
+    state = ""
+    country = "USA"
+    postal_code = ""
             
             # Extract information from context
             for item in context:
