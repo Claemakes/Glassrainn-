@@ -43,9 +43,14 @@ app.json_encoder = DecimalEncoder
 def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
-        # Using Render PostgreSQL connection URL
-        DATABASE_URL = 
+        # Try to get connection URL from environment variable
+        DATABASE_URL = os.environ.get("DATABASE_URL")
+        
+        # If not available, fall back to hardcoded connection
+        if not DATABASE_URL:
+            DATABASE_URL = 
 "postgresql://glass:lcol1JTaQSXDSddMUELubDf7of0qq4e9@dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com/glassrain"
+            
         conn = psycopg2.connect(DATABASE_URL)
         conn.autocommit = True
         logger.info("✅ Database connection successful")
