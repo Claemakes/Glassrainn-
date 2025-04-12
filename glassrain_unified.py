@@ -1295,8 +1295,7 @@ def process_address():
         })
     except Exception as e:
         logger.error(f"Error saving address: {str(e)}")
-        return jsonify({"error": str(e)}), 500    
-    address_data = request.json
+        return jsonify({"error": str(e)}), 500
 
     # Check for the different format from updated template
     if 'address' in address_data:
