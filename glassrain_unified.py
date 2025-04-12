@@ -43,30 +43,30 @@ app.json_encoder = DecimalEncoder
 def get_db_connection():
     """Get a connection to the PostgreSQL database"""
     try:
-        # Try direct connection using hardcoded values first since the environment variable approach has issues
-        dbname = "glassrain"
-        user = "glass"
-        password = "lcol1JTaQSXDSddMUELubDf7of0qq4e9"
-        host = "dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com"
-        port = "5432"
+    # Try direct connection using hardcoded values first since the environment variable approach has issues
+    dbname = "glassrain"
+    user = "glass"
+    password = "lcol1JTaQSXDSddMUELubDf7of0qq4e9"
+    host = "dpg-cvsqpdc9c44c73c3vr8g-a.ohio-postgres.render.com"
+    port = "5432"
         
-        # Connect with keyword parameters
-        conn = psycopg2.connect(
-            dbname=dbname,
-            user=user,
-            password=password,
-            host=host,
-            port=port,
-            sslmode='require'
-        )
+    # Connect with keyword parameters
+    conn = psycopg2.connect(
+    dbname=dbname,
+    user=user,
+    password=password,
+    host=host,
+    port=port,
+    sslmode='require'
+    )
         
-        conn.autocommit = True
-        logger.info("✅ Database connection successful (using direct parameters)")
-        return conn
-            except Exception as e:
-        logger.error(f"❌ Database connection error: {str(e)}")
-        logger.error(f"Error type: {type(e).__name__}")
-        return None
+    conn.autocommit = True
+    logger.info("✅ Database connection successful (using direct parameters)")
+    return conn
+    except Exception as e:
+    logger.error(f"❌ Database connection error: {str(e)}")
+    logger.error(f"Error type: {type(e).__name__}")
+    return None
 
 def setup_database():
     """Setup the database tables if they don't exist"""
@@ -1360,7 +1360,6 @@ def process_address():
                     postal_code = item.get('text', '')
             
             # Build standardized address_data
-            try:
             coordinates = feature.get('center', [0, 0])
             address_data = {
                 'street': street,
