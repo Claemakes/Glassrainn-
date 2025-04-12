@@ -63,7 +63,7 @@ def get_db_connection():
         conn.autocommit = True
         logger.info("✅ Database connection successful (using direct parameters)")
         return conn
-    except Exception as e:
+            except Exception as e:
         logger.error(f"❌ Database connection error: {str(e)}")
         logger.error(f"Error type: {type(e).__name__}")
         return None
@@ -1360,6 +1360,7 @@ def process_address():
                     postal_code = item.get('text', '')
             
             # Build standardized address_data
+            try:
             coordinates = feature.get('center', [0, 0])
             address_data = {
                 'street': street,
