@@ -1473,16 +1473,16 @@ if address_number:
     country = "USA"
     postal_code = ""
             
-            # Extract information from context
-            for item in context:
-                if item.get('id', '').startswith('place'):
-                    city = item.get('text', '')
-                elif item.get('id', '').startswith('region'):
-                    state = item.get('text', '')
-                elif item.get('id', '').startswith('country'):
-                    country = item.get('text', '')
-                elif item.get('id', '').startswith('postcode'):
-                    postal_code = item.get('text', '')
+      # Extract information from context
+      for item in context:
+          if item.get('id', '').startswith('place'):
+              city = item.get('text', '')
+          elif item.get('id', '').startswith('region'):
+              state = item.get('text', '')
+          elif item.get('id', '').startswith('country'):
+              country = item.get('text', '')
+          elif item.get('id', '').startswith('postcode'):
+              postal_code = item.get('text', '')
             
             # Build standardized address_data
             coordinates = feature.get('center', [0, 0])
