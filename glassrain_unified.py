@@ -45,6 +45,9 @@ def get_db_connection():
     try:
         # Try to get connection URL from environment variable
         database_url = os.environ.get("DATABASE_URL")
+        
+        # Log the actual value for debugging
+        logger.info(f"Original DATABASE_URL: {database_url}")
 
         # If not available, fall back to hardcoded connection
         if not database_url:
@@ -52,6 +55,9 @@ def get_db_connection():
         else:
             # Render often provides postgres:// instead of postgresql://
             database_url = database_url.replace("postgres://", "postgresql://")
+        
+        # Log the modified value
+        logger.info(f"Using database URL: {database_url[:15]}...") # Only show beginning for security
 
         conn = psycopg2.connect(database_url)
         conn.autocommit = True
@@ -59,7 +65,9 @@ def get_db_connection():
         return conn
     except Exception as e:
         logger.error(f"❌ Database connection error: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
         return None
+
 def setup_database():
     """Setup the database tables if they don't exist"""
     try:
