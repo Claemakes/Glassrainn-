@@ -1248,17 +1248,54 @@ def control():
     
     return render_template('control.html', property=property_data)
 
-@app.route('/settings')
-def settings():
-    """Render the Settings tab"""
-    return render_template('settings.html')
-
 @app.route('/api/process-address', methods=['POST'])
 def process_address():
-    """Process address data from the form, geocode using Mapbox, and save to database"""
+    """Process address data from the form and save to database"""
     if not request.json:
         return jsonify({"error": "No JSON data provided"}), 400
     
+    address_data = request.json
+    
+    # Save address to database
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+    
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Add address
+        cursor.execute("""
+            INSERT INTO addresses (
+                street, city, state, zip, country,
+                lat, lng, full_address, created_at   
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, NOW()
+            ) RETURNING id
+        """, (
+            address_data.get('street', ''),
+            address_data.get('city', ''),
+            address_data.get('state', ''),
+            address_data.get('zip', ''),
+            address_data.get('country', 'USA'),
+            address_data.get('lat', 0),
+            address_data.get('lng', 0),
+            address_data.get('full_address', ''),
+        ))
+                
+        address_id = cursor.fetchone()['id']
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "address_id": address_id,  # Changed from "id" to "address_id"
+            "message": "Address saved successfully"
+        })
+    except Exception as e:
+        logger.error(f"Error saving address: {str(e)}")
+        return jsonify({"error": str(e)}), 500    
     address_data = request.json
 
     # Check for the different format from updated template
